@@ -7,6 +7,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { EmptyState, ErrorState, GridSkeleton, ListingCard, PageHeader } from "@/components/kit";
+import { useListingPages } from "@/lib/paged-queries";
+import { MoreButton } from "@/components/more-button";
 import { ListingForm } from "@/components/listing-form";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
@@ -16,7 +18,7 @@ export default function Wardrobe() {
   const { t, e } = useI18n();
   const { toast } = useToast();
   const qc = useQueryClient();
-  const q = useGetListings({ mine: true }, { query: { queryKey: getGetListingsQueryKey({ mine: true }) } });
+  const q = useListingPages({mine:true});
   const del = useDeleteListing();
   const [editing, setEditing] = useState<Listing | "new" | null>(null);
   const [deleting, setDeleting] = useState<Listing | null>(null);
@@ -47,6 +49,7 @@ export default function Wardrobe() {
         </div>
       )}
 
+      <MoreButton q={q} />
       <Dialog open={!!editing} onOpenChange={(o) => !o && setEditing(null)}>
         <DialogContent className="max-h-[92dvh] overflow-y-auto bg-card">
           <DialogHeader><DialogTitle className="font-display text-2xl text-primary">{editing === "new" ? t("newListing") : t("editListing")}</DialogTitle></DialogHeader>

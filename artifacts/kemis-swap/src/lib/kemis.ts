@@ -1,4 +1,5 @@
 import { ListingInputCondition, ListingInputOccasion } from "@workspace/api-client-react";
+import { systemText } from "./localized-copy";
 
 export const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
 export const OCCASIONS = Object.values(ListingInputOccasion);
@@ -34,5 +35,6 @@ export async function compressImage(file: File): Promise<Blob> {
 
 export function errMsg(err: unknown, fallback: string) {
   const e = err as { data?: { error?: string; message?: string }; message?: string } | null;
-  return e?.data?.error || e?.data?.message || fallback;
+  const message=e?.data?.error || e?.data?.message || e?.message || fallback;
+  return systemText(message,localStorage.getItem("kemis-lang")??"en",fallback);
 }

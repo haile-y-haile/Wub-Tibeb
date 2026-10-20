@@ -46,7 +46,7 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
     resolver: zodResolver(schema),
     defaultValues: {
       title: listing?.title ?? "", description: listing?.description ?? "", condition: listing?.condition ?? "Excellent",
-      color: listing?.color ?? "", fabric: listing?.fabric ?? "Shemma cotton", embroidery: listing?.embroidery ?? "",
+      color: listing?.color ?? "", fabric: listing?.fabric ?? t("defaultFabric"), embroidery: listing?.embroidery ?? "",
       occasion: listing?.occasion ?? "Timket", timesWorn: listing?.timesWorn ?? 1,
       bust: m?.bust ?? "", waist: m?.waist ?? "", hips: m?.hips ?? "", shoulder: m?.shoulder ?? "", length: m?.length ?? "", sleeves: m?.sleeves ?? "",
     } as F,
@@ -140,7 +140,7 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
         <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(ev) => addFiles(ev.target.files)} data-testid="input-photo-file" />
         {photoErr && <p className="mt-1 text-xs text-destructive">{t("required")}</p>}
       </div>
-      {field("title", t("title"), { placeholder: "Ivory kemis with emerald tibeb" })}
+      {field("title", t("title"), { placeholder: t("exampleTitle") })}
       <div className="space-y-1.5">
         <Label htmlFor="lf-description">{t("description")}</Label>
         <Textarea id="lf-description" rows={4} {...form.register("description")} className="bg-background" data-testid="input-description" />
@@ -152,7 +152,7 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
         {field("color", t("color"))}
         {field("fabric", t("fabric"))}
       </div>
-      {field("embroidery", t("embroidery"), { placeholder: "Green and gold meskel cross tibeb" })}
+      {field("embroidery", t("embroidery"), { placeholder: t("exampleEmbroidery") })}
       {field("timesWorn", t("timesWorn"), { inputMode: "numeric" })}
       <fieldset className="rounded-2xl border border-border p-4">
         <legend className="px-1 text-sm font-semibold text-primary">{t("measurements")} ({t("cm")})</legend>

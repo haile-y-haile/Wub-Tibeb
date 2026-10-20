@@ -14,9 +14,13 @@ import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { CONDITIONS, OCCASIONS, errMsg, photoSrc } from "@/lib/kemis";
 import { cn } from "@/lib/utils";
+import { localizedListing } from "@/lib/localized-copy";
+import { useListingPages } from "@/lib/paged-queries";
+import { MoreButton } from "@/components/more-button";
 
-function SwipeCard({ l, onDecide, disabled }: { l: Listing; onDecide: (d: "like" | "pass") => void; disabled: boolean }) {
-  const { t, e } = useI18n();
+function SwipeCard({ l: original, onDecide, disabled }: { l: Listing; onDecide: (d: "like" | "pass") => void; disabled: boolean }) {
+  const { t, e, lang } = useI18n();
+  const l=localizedListing(original,lang);
   const ref = useRef<HTMLDivElement>(null);
   const start = useRef<{ x: number; y: number } | null>(null);
   const [dx, setDx] = useState(0);
@@ -98,8 +102,8 @@ export default function Discover() {
     (Object.keys(p) as (keyof GetListingsParams)[]).forEach((k) => (p[k] === "" || p[k] === undefined || p[k] === false) && delete p[k]);
     return p;
   }, [f, dq]);
-  const listings = useGetListings(params, { query: { queryKey: getGetListingsQueryKey(params) } });
-  const mine = useGetListings({ mine: true }, { query: { queryKey: getGetListingsQueryKey({ mine: true }) } });
+  const listings = useListingPages(params);
+  const mine = useListingPages({mine:true});
   const myActive = useMemo(() => (mine.data ?? []).filter((l) => l.status === "active" && !l.demo), [mine.data]);
   const others = useMemo(() => (listings.data ?? []).filter((l) => l.ownerId !== me?.id && l.status !== "hidden"), [listings.data, me?.id]);
   const deck = useMemo(() => others.filter((l) => !seen.has(l.id)), [others, seen]);
@@ -212,6 +216,8 @@ export default function Discover() {
         </div>
       )}
 
+      {mode==="swipe" && <MoreButton q={mine} label={t("moreOwn")} />}
+      <MoreButton q={listings} />
       <div className="mt-4">
         {listings.isLoading ? (mode === "grid" ? <GridSkeleton /> : <div className="mx-auto aspect-[3/4] max-h-[62dvh] w-[calc(100%-2rem)] max-w-sm animate-pulse rounded-[28px] bg-secondary" />)
           : listings.error ? <ErrorState onRetry={() => listings.refetch()} />

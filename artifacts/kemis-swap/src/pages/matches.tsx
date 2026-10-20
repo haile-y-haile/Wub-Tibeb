@@ -1,16 +1,17 @@
 import { Link } from "wouter";
 import { ArrowLeftRight, ChevronRight } from "lucide-react";
-import { format } from "date-fns";
 import { useGetMatches, useGetProfile, getGetMatchesQueryKey, getGetProfileQueryKey } from "@workspace/api-client-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState, ErrorState, PageHeader } from "@/components/kit";
 import { useI18n } from "@/lib/i18n";
 import { photoSrc } from "@/lib/kemis";
+import { useMatchPages } from "@/lib/paged-queries";
+import { MoreButton } from "@/components/more-button";
 
 export default function Matches() {
-  const { t, e } = useI18n();
+  const { t, e, lang } = useI18n();
   const { data: me } = useGetProfile({ query: { queryKey: getGetProfileQueryKey(), retry: false } });
-  const q = useGetMatches({ query: { queryKey: getGetMatchesQueryKey(), refetchInterval: 15000 } });
+  const q = useMatchPages();
 
   return (
     <div>
@@ -38,7 +39,7 @@ export default function Matches() {
                     <p className="truncate text-xs text-muted-foreground">{hers.ownerName} · {hers.neighborhood}</p>
                     <div className="mt-1 flex items-center gap-2">
                       <span className="rounded-full bg-secondary px-2 py-0.5 text-[11px] font-semibold text-primary" data-testid={`status-match-${m.id}`}>{e(m.status)}</span>
-                      <span className="text-[11px] text-muted-foreground">{format(new Date(m.createdAt), "d MMM")}</span>
+                      <span className="text-[11px] text-muted-foreground">{new Intl.DateTimeFormat(lang==="am"?"am-ET":"en-GB",{day:"numeric",month:"short"}).format(new Date(m.createdAt))}</span>
                     </div>
                   </div>
                   <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -48,6 +49,7 @@ export default function Matches() {
           })}
         </ul>
       )}
+      <MoreButton q={q} />
     </div>
   );
 }

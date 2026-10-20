@@ -11,4 +11,5 @@ export type ModerationInputAction = typeof ModerationInputAction[keyof typeof Mo
 export const ModerationInputAction = {
   dismiss: 'dismiss',
   hide: 'hide',
+  close_dispute: 'close_dispute',
 } as const;

@@ -9,7 +9,8 @@
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:exchange": "node scripts/run-script.mjs exchange",
-    "admin:grant": "node scripts/run-script.mjs admin"
+    "admin:grant": "node scripts/run-script.mjs admin",
+    "test:cleanup": "node scripts/run-script.mjs cleanup"
   },
   "dependencies": {
     "@clerk/express": "^2.1.80",

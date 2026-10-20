@@ -6,7 +6,7 @@ import { useI18n } from "@/lib/i18n";
 import { basePath } from "@/lib/kemis";
 
 export default function Home() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const community = useGetCommunity({ query: { queryKey: getGetCommunityQueryKey() } });
   const listings = useGetListings(undefined, { query: { queryKey: getGetListingsQueryKey() } });
   const c = community.data;
@@ -17,10 +17,10 @@ export default function Home() {
         <div className="grid items-center gap-6 md:grid-cols-[1.1fr_1fr]">
           <div className="rise">
             <div className="flex items-baseline gap-3" data-testid="text-brand">
-              <span className="wordmark text-xl text-primary">Wub Tibeb</span>
-              <span lang="am" className="wordmark-am text-base text-muted-foreground">ውብ ጥበብ</span>
+              <span className="wordmark text-xl text-primary">{t("appName")}</span>
+              {lang==="en" && <span lang="am" className="wordmark-am text-base text-muted-foreground">ውብ ጥበብ</span>}
             </div>
-            <p lang="en" className="mt-1 font-display text-lg italic text-[#795b25]" data-testid="text-tagline">Wear. Share. Repeat.</p>
+            <p className="mt-1 font-display text-lg italic text-[#795b25]" data-testid="text-tagline">{t("tagline")}</p>
             <div className="tibeb-thin mt-3 w-24 rounded-full" aria-hidden />
             <h1 className="mt-2 font-display text-[2.6rem] font-semibold leading-[1.02] text-primary md:text-6xl" data-testid="text-hero">{t("heroLine")}</h1>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">{t("heroSub")}</p>
@@ -34,7 +34,7 @@ export default function Home() {
           </div>
           <div className="relative mx-auto w-full max-w-sm rise" style={{ animationDelay: "120ms" }}>
             <div className="grid grid-cols-5 gap-2">
-              <img src={`${basePath}/images/kemis-1.webp`} alt="Ivory Habesha kemis with green and gold tibeb" fetchPriority="high" className="col-span-3 aspect-[3/4] w-full rounded-t-full rounded-b-2xl object-cover" />
+              <img src={`${basePath}/images/kemis-1.webp`} alt={t("exampleTitle")} fetchPriority="high" className="col-span-3 aspect-[3/4] w-full rounded-t-full rounded-b-2xl object-cover" />
               <div className="col-span-2 flex flex-col gap-2 pt-10">
                 <img src={`${basePath}/images/kemis-4.webp`} alt="" loading="lazy" className="aspect-[3/4] w-full rounded-2xl object-cover" />
                 <img src={`${basePath}/images/kemis-6.webp`} alt="" loading="lazy" className="aspect-square w-full rounded-2xl object-cover" />
@@ -45,7 +45,7 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="mx-4 grid grid-cols-3 divide-x divide-border rounded-2xl paper text-center" aria-label="Community">
+      <section className="mx-4 grid grid-cols-3 divide-x divide-border rounded-2xl paper text-center" aria-label={t("community")}>
         {[[c?.dresses, t("dresses")], [c?.swaps, t("swaps")], [c?.neighborhoods, t("hoods")]].map(([n, l], i) => (
           <div key={i} className="px-2 py-4">
             <div className="font-display text-2xl font-semibold text-primary" data-testid={`text-stat-${i}`}>{community.isLoading ? "–" : n ?? 0}</div>
@@ -53,6 +53,7 @@ export default function Home() {
           </div>
         ))}
       </section>
+      {listings.data?.some(l=>l.demo) && <p className="px-4 pt-2 text-xs text-muted-foreground">{t("demoCounts")}</p>}
 
       <section className="px-4 py-10">
         <ol className="grid gap-4 md:grid-cols-3">

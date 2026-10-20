@@ -204,6 +204,11 @@ export interface ExchangeInput {
   action: ExchangeInputAction;
   /** @maxLength 500 */
   proposal?: string;
+  /**
+     * Required when accepting; must exactly match the proposal the member reviewed.
+     * @maxLength 500
+     */
+  expectedProposal?: string;
 }
 
 export interface ReportInput {
@@ -231,6 +236,7 @@ export interface Report {
   listingId: string;
   reason: string;
   status: string;
+  handoffHold?: boolean;
 }
 
 export type ModerationInputAction = typeof ModerationInputAction[keyof typeof ModerationInputAction];
@@ -239,6 +245,7 @@ export type ModerationInputAction = typeof ModerationInputAction[keyof typeof Mo
 export const ModerationInputAction = {
   dismiss: 'dismiss',
   hide: 'hide',
+  close_dispute: 'close_dispute',
 } as const;
 
 export interface ModerationInput {
@@ -267,6 +274,10 @@ export interface UploadInput {
 }
 
 export type GetListingsParams = {
+/**
+ * @maxLength 160
+ */
+before?: string;
 q?: string;
 occasion?: string;
 color?: string;
@@ -282,10 +293,43 @@ export type SwipeDress200 = {
   matchId?: string;
 };
 
+export type GetMatchesParams = {
+/**
+ * @maxLength 160
+ */
+before?: string;
+/**
+ * @maxLength 160
+ */
+id?: string;
+};
+
+export type GetMessagesParams = {
+/**
+ * @maxLength 160
+ */
+before?: string;
+};
+
+export type GetNotificationsParams = {
+/**
+ * @maxLength 160
+ */
+before?: string;
+unread?: boolean;
+};
+
 export type GetCommunity200 = {
   dresses: number;
   swaps: number;
   neighborhoods: number;
+};
+
+export type GetModerationParams = {
+/**
+ * @maxLength 160
+ */
+before?: string;
 };
 
 export type RequestUpload200 = {

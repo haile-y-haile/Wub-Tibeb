@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation, useParams } from "wouter";
 import { ArrowLeft, Check, CheckCheck, Circle, Send } from "lucide-react";
-import { format } from "date-fns";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   useGetMatches, useGetMessages, useGetProfile, useSendMessage, useUpdateExchange,
@@ -14,6 +13,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { DemoBadge, ErrorState, SafetyNote } from "@/components/kit";
 import { SafetyActions } from "@/components/safety-actions";
+import { useMessagePages } from "@/lib/paged-queries";
+import { MoreButton } from "@/components/more-button";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { errMsg, photoSrc } from "@/lib/kemis";
@@ -21,13 +22,13 @@ import { cn } from "@/lib/utils";
 
 export default function MatchDetail() {
   const { id } = useParams<{ id: string }>();
-  const { t, e } = useI18n();
+  const { t, e, lang } = useI18n();
   const { toast } = useToast();
   const qc = useQueryClient();
   const [, setLocation] = useLocation();
   const { data: me } = useGetProfile({ query: { queryKey: getGetProfileQueryKey(), retry: false } });
-  const matches = useGetMatches({ query: { queryKey: getGetMatchesQueryKey(), refetchInterval: 15000 } });
-  const messages = useGetMessages(id, { query: { queryKey: getGetMessagesQueryKey(id), enabled: !!id, refetchInterval: 10000 } });
+  const matches = useGetMatches({id},{ query: { queryKey: getGetMatchesQueryKey({id}), refetchInterval: 15000 } });
+  const messages = useMessagePages(id);
   const send = useSendMessage();
   const exchange = useUpdateExchange();
   const [text, setText] = useState("");
@@ -35,10 +36,10 @@ export default function MatchDetail() {
   const [confirmCancel, setConfirmCancel] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
   const count = messages.data?.length ?? 0;
-  useEffect(() => { endRef.current?.scrollIntoView({ block: "end" }); }, [count]);
+  useEffect(() => { endRef.current?.scrollIntoView({ block: "end" }); }, [messages.data?.at(-1)?.id]);
 
   const m = matches.data?.find((x) => x.id === id);
-  useEffect(() => { if (m?.proposal) setProposal((p) => p || m.proposal); }, [m?.proposal]);
+  useEffect(() => { setProposal(m?.proposal ?? ""); }, [m?.id,m?.proposal]);
 
   if (matches.isLoading) return <div className="space-y-3 p-4"><Skeleton className="h-28 rounded-2xl bg-secondary" /><Skeleton className="h-64 rounded-2xl bg-secondary" /></div>;
   if (matches.error) return <ErrorState onRetry={() => matches.refetch()} />;
@@ -62,7 +63,10 @@ export default function MatchDetail() {
       qc.invalidateQueries({ queryKey: getGetNotificationsQueryKey() });
       toast({ title: t("saved") });
     },
-    onError: (err) => toast({ title: errMsg(err, t("error")), variant: "destructive" }),
+    onError: (err) => {
+      qc.invalidateQueries({ queryKey: getGetMatchesQueryKey() });
+      toast({ title: errMsg(err, t("error")), variant: "destructive" });
+    },
   });
 
   const submitMsg = () => {
@@ -74,7 +78,7 @@ export default function MatchDetail() {
   };
 
   const history = [
-    { label: format(new Date(m.createdAt), "d MMM, HH:mm") + " — " + t("itsAMatch"), done: true },
+    { label: new Intl.DateTimeFormat(lang==="am"?"am-ET":"en-GB",{dateStyle:"medium",timeStyle:"short"}).format(new Date(m.createdAt)) + " — " + t("itsAMatch"), done: true },
     { label: `${t("proposal")}: ${m.proposal || "—"}`, done: !!m.proposal },
     { label: `${t("you")} — ${t("accepted")}`, done: iAccepted },
     { label: `${t("them")} — ${t("accepted")}`, done: sheAccepted },
@@ -123,7 +127,7 @@ export default function MatchDetail() {
               <Textarea id="proposal" rows={2} maxLength={500} value={proposal} onChange={(ev) => setProposal(ev.target.value)} placeholder={t("proposalHint")} className="bg-background" data-testid="input-proposal" />
               <div className="grid grid-cols-2 gap-2">
                 <Button variant="outline" className="h-11" disabled={!proposal.trim() || m.status === "accepted" || exchange.isPending} onClick={() => act({ action: "propose", proposal: proposal.trim() })} data-testid="button-propose">{t("propose")}</Button>
-                <Button className="h-11" disabled={!m.proposal || iAccepted || exchange.isPending} onClick={() => act({ action: "accept" })} data-testid="button-accept">{t("accept")}</Button>
+                <Button className="h-11" disabled={!m.proposal || proposal !== m.proposal || iAccepted || exchange.isPending} onClick={() => act({ action: "accept", expectedProposal: m.proposal })} data-testid="button-accept">{t("accept")}</Button>
                 <Button className="h-11 bg-accent text-accent-foreground hover:bg-accent/90" disabled={!bothAccepted || iDone || exchange.isPending} onClick={() => act({ action: "complete" })} data-testid="button-complete">{t("complete")}</Button>
                 <Button variant="ghost" className="h-11 text-destructive" disabled={m.completedBy.length > 0 || exchange.isPending} onClick={() => setConfirmCancel(true)} data-testid="button-cancel-swap">{t("cancelSwap")}</Button>
               </div>
@@ -141,7 +145,8 @@ export default function MatchDetail() {
 
       <div className="mx-4 mt-3"><SafetyNote /></div>
 
-      <section className="mx-4 mt-4 rounded-2xl paper" aria-label="Chat">
+      <section className="mx-4 mt-4 rounded-2xl paper" aria-label={t("chat")}>
+        <MoreButton q={messages} earlier />
         <div className="max-h-[50dvh] min-h-40 space-y-2 overflow-y-auto p-3" aria-live="polite">
           {messages.isLoading ? <Skeleton className="h-10 w-2/3 bg-secondary" /> : messages.error ? <ErrorState onRetry={() => messages.refetch()} /> :
             !count ? <p className="py-8 text-center text-sm text-muted-foreground">{t("chatEmpty")}</p> :
@@ -151,7 +156,7 @@ export default function MatchDetail() {
                 <div key={msg.id} className={cn("flex", own ? "justify-end" : "justify-start")} data-testid={`msg-${msg.id}`}>
                   <div className={cn("max-w-[80%] rounded-2xl px-3 py-2 text-sm", own ? "rounded-br-sm bg-primary text-primary-foreground" : "rounded-bl-sm bg-secondary")}>
                     <p className="whitespace-pre-line">{msg.text}</p>
-                    <p className="mt-0.5 text-[10px] opacity-70">{format(new Date(msg.createdAt), "HH:mm")}</p>
+                    <p className="mt-0.5 text-[10px] opacity-70">{new Intl.DateTimeFormat(lang==="am"?"am-ET":"en-GB",{hour:"2-digit",minute:"2-digit"}).format(new Date(msg.createdAt))}</p>
                   </div>
                 </div>
               );
@@ -160,7 +165,7 @@ export default function MatchDetail() {
         </div>
         <form className="flex gap-2 border-t border-border p-2" onSubmit={(ev) => { ev.preventDefault(); submitMsg(); }}>
           <input value={text} onChange={(ev) => setText(ev.target.value)} maxLength={2000} placeholder={t("typeMessage")} aria-label={t("typeMessage")} className="h-11 flex-1 rounded-full border border-input bg-background px-4 text-sm" data-testid="input-message" />
-          <Button type="submit" size="icon" className="h-11 w-11 rounded-full" disabled={!text.trim() || send.isPending} aria-label={t("send")} data-testid="button-send"><Send className="h-4 w-4" /></Button>
+          <Button type="submit" size="icon" className="h-11 w-11 rounded-full" disabled={!text.trim() || send.isPending || m.status==="cancelled"} aria-label={t("send")} data-testid="button-send"><Send className="h-4 w-4" /></Button>
         </form>
       </section>
 

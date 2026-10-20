@@ -1,4 +1,5 @@
 import { Router, type IRouter } from "express";
+import { beforeCursor } from "../lib/pagination";
 import { randomUUID } from "node:crypto";
 import { pool } from "@workspace/db";
 import { GetListingsResponse,GetListingResponse,CreateListingBody,UpdateListingBody,SaveProfileBody,GetProfileResponse } from "@workspace/api-zod";
@@ -33,8 +34,15 @@ router.get("/listings",async(req,res)=>{
   }
   if(typeof req.query.neighborhood==="string"&&req.query.neighborhood) {values.push(req.query.neighborhood);where+=` AND lower(p.neighborhood)=lower($${values.length})`;}
   if(typeof req.query.q==="string"&&req.query.q) {values.push(`%${String(req.query.q).slice(0,100)}%`);where+=` AND (l.data->>'title' ILIKE $${values.length} OR l.data->>'description' ILIKE $${values.length})`;}
-  const r=await pool.query(`SELECT l.*,p.name owner_name,p.neighborhood FROM kemis_listings l JOIN kemis_profiles p ON p.id=l.owner_id WHERE ${where} ORDER BY l.created_at DESC LIMIT 100`,values);
   const p=uid?(await pool.query("SELECT measurements FROM kemis_profiles WHERE id=$1",[uid])).rows[0]?.measurements:null;
+  if(req.query.compatible==="true") {
+    if(!p) fail(400,"Save your preferred garment measurements in your profile first");
+    for(const k of ["bust","waist","hips","shoulder","length","sleeves"]) {
+      values.push(p[k]);where+=` AND abs((l.data->'measurements'->>'${k}')::numeric-$${values.length}::numeric)<=${k==="length"?10:5}`;
+    }
+  }
+  where+=beforeCursor(req.query.before,values,"kemis_listings","l");
+  const r=await pool.query(`SELECT l.*,p.name owner_name,p.neighborhood FROM kemis_listings l JOIN kemis_profiles p ON p.id=l.owner_id WHERE ${where} ORDER BY l.created_at DESC,l.id DESC LIMIT 100`,values);
   let items=r.rows.map(row=>{
     const item=listing(row);
     if(p) item.compatible=Object.keys(p).every(k=>Math.abs(item.measurements[k]-p[k])<=(k==="length"?10:5));
@@ -100,7 +108,7 @@ router.delete("/listings/:id",auth,async(req,res)=>{
   res.json({ok:true});
 });
 router.get("/community",async(_req,res)=>{
-  const r=await pool.query("SELECT (SELECT count(*)::int FROM kemis_listings WHERE status='active') dresses,(SELECT count(*)::int FROM kemis_matches WHERE status='completed') swaps,(SELECT count(DISTINCT p.neighborhood)::int FROM kemis_profiles p JOIN kemis_listings l ON l.owner_id=p.id WHERE l.status='active') neighborhoods");
+  const r=await pool.query("SELECT (SELECT count(*)::int FROM kemis_listings WHERE status='active' AND NOT demo) dresses,(SELECT count(*)::int FROM kemis_matches WHERE status='completed') swaps,(SELECT count(DISTINCT p.neighborhood)::int FROM kemis_profiles p JOIN kemis_listings l ON l.owner_id=p.id WHERE l.status='active' AND NOT l.demo) neighborhoods");
   res.json(r.rows[0]);
 });
 export default router;

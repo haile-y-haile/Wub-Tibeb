@@ -67,7 +67,7 @@ export function ProfileForm({ profile, onDone }: { profile?: Profile | null; onD
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="hood">{t("neighborhood")}</Label>
-        <Input id="hood" {...form.register("neighborhood")} className="h-12 bg-card" placeholder="Bole" data-testid="input-neighborhood" />
+        <Input id="hood" {...form.register("neighborhood")} className="h-12 bg-card" placeholder={t("exampleNeighborhood")} data-testid="input-neighborhood" />
         <p className="text-xs text-muted-foreground">{t("generalHood")}</p>
         {errs.neighborhood && <p className="text-xs text-destructive">{t("required")}</p>}
       </div>
@@ -77,7 +77,7 @@ export function ProfileForm({ profile, onDone }: { profile?: Profile | null; onD
           {(["en", "am"] as const).map((l) => (
             <button type="button" key={l} onClick={() => setLang(l)} aria-pressed={lang === l} data-testid={`button-profile-lang-${l}`}
               className={`h-11 flex-1 rounded-xl border text-sm font-semibold ${lang === l ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
-              {l === "en" ? "English" : "አማርኛ"}
+              {l === "en" ? t("englishLanguage") : t("amharicLanguage")}
             </button>
           ))}
         </div>

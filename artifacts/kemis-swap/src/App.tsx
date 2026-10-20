@@ -1,25 +1,27 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, lazy, Suspense, type ReactNode, type ComponentType } from "react";
 import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
 import { QueryClient, QueryClientProvider, useQueryClient } from "@tanstack/react-query";
-import { Redirect, Route, Switch, useLocation, Router as WouterRouter } from "wouter";
+import { Link, Redirect, Route, Switch, useLocation, Router as WouterRouter } from "wouter";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { Shell } from "@/components/shell";
+import { Shell, LangToggle } from "@/components/shell";
 import { Protected } from "@/components/gate";
 import { I18nProvider, useI18n } from "@/lib/i18n";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
-import Discover from "@/pages/discover";
-import Dress from "@/pages/dress";
-import Wardrobe from "@/pages/wardrobe";
-import Matches from "@/pages/matches";
-import MatchDetail from "@/pages/match-detail";
-import { ModerationPage, NotificationsPage, ProfilePage } from "@/pages/misc";
+import { clerkAm } from "@/lib/clerk-am";
 
-const BRAND = "Wub Tibeb · ውብ ጥበብ";
+const Discover=lazy(()=>import("@/pages/discover"));
+const Dress=lazy(()=>import("@/pages/dress"));
+const Wardrobe=lazy(()=>import("@/pages/wardrobe"));
+const Matches=lazy(()=>import("@/pages/matches"));
+const MatchDetail=lazy(()=>import("@/pages/match-detail"));
+const ProfilePage=lazy(()=>import("@/pages/misc").then(m=>({default:m.ProfilePage})));
+const NotificationsPage=lazy(()=>import("@/pages/misc").then(m=>({default:m.NotificationsPage})));
+const ModerationPage=lazy(()=>import("@/pages/misc").then(m=>({default:m.ModerationPage})));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 15000, refetchOnWindowFocus: true, retry: 1 } } });
 
@@ -92,17 +94,18 @@ const clerkAppearance = {
 };
 
 function AuthFrame({ children }: { children: ReactNode }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-background px-4 py-8">
+      <div className="flex w-full max-w-sm items-center justify-between"><Link href="/" className="text-sm underline">{t("back")}</Link><LangToggle /></div>
       <div className="flex items-center gap-3">
         <img src={`${basePath}/logo.svg`} alt="" className="h-11 w-11" />
         <div className="text-left">
-          <div className="wordmark text-2xl text-primary">Wub Tibeb</div>
-          <div lang="am" className="wordmark-am text-sm text-muted-foreground">ውብ ጥበብ</div>
+          <div className="wordmark text-2xl text-primary">{t("appName")}</div>
+          {lang==="en" && <div lang="am" className="wordmark-am text-sm text-muted-foreground">ውብ ጥበብ</div>}
         </div>
       </div>
-      <p className="font-display text-base italic text-accent-foreground/80">Wear. Share. Repeat.</p>
+      <p className="font-display text-base italic text-accent-foreground/80">{t("tagline")}</p>
       <div className="tibeb-thin w-32 rounded-full" aria-hidden />
       <p className="max-w-xs text-center text-sm text-muted-foreground">{t("heroLine")}</p>
       {children}
@@ -144,7 +147,7 @@ function HomeRedirect() {
   );
 }
 
-const P = (C: () => ReactNode) => () => <Protected><C /></Protected>;
+const P = (C: ComponentType) => () => <Protected><C /></Protected>;
 const DiscoverP = P(Discover), WardrobeP = P(Wardrobe), MatchesP = P(Matches), MatchP = P(MatchDetail),
   ProfileP = P(ProfilePage), NotesP = P(NotificationsPage), ModP = P(ModerationPage);
 
@@ -155,22 +158,25 @@ function RoutedErrorBoundary({ children }: { children: ReactNode }) {
 
 function AppRoutes() {
   const [location] = useLocation();
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
+  const brand=lang==="am"?t("appName"):"Wub Tibeb · ውብ ጥበብ";
   const labels: Record<string, string> = {
-    "/": BRAND, "/discover": t("discover"), "/wardrobe": t("yourDress"),
+    "/": brand, "/discover": t("discover"), "/wardrobe": t("yourDress"),
     "/matches": t("matches"), "/profile": t("profile"), "/notifications": t("alerts"),
     "/moderation": t("moderation"), "/sign-in": t("signIn"), "/sign-up": t("getStarted"),
   };
-  const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : BRAND);
+  const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : brand);
   useEffect(() => {
-    document.title = title === BRAND ? `${BRAND} — Wear. Share. Repeat.` : `${title} · Wub Tibeb`;
-    const description = `Wear. Share. Repeat. ${title === BRAND ? "Wub Tibeb (ውብ ጥበብ)" : title} — kemis-for-kemis exchanges in Ethiopia.`;
+    document.title = `${title===brand?brand:`${title} · ${t("appName")}`} — ${t("tagline")}`;
+    const description = `${t("appName")}. ${t("tagline")} ${t("appDescription")}`;
+    document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute("content",t("appName"));
+    document.querySelector('meta[property="og:locale"]')?.setAttribute("content",lang==="am"?"am_ET":"en_ET");
     document.querySelector('meta[name="description"]')?.setAttribute("content", description);
     document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
     document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
     document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", document.title);
     document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
-  }, [title]);
+  }, [title,lang,t]);
   return (
     <Switch>
       <Route path="/sign-in/*?" component={SignInPage} />
@@ -178,7 +184,7 @@ function AppRoutes() {
       <Route>
         <Shell>
           <RoutedErrorBoundary>
-            <Switch>
+            <Suspense fallback={<div className="p-6 text-center" role="status">{t("loading")}</div>}><Switch>
               <Route path="/" component={HomeRedirect} />
               <Route path="/discover" component={DiscoverP} />
               <Route path="/dress/:id" component={Dress} />
@@ -189,7 +195,7 @@ function AppRoutes() {
               <Route path="/notifications" component={NotesP} />
               <Route path="/moderation" component={ModP} />
               <Route component={NotFound} />
-            </Switch>
+            </Switch></Suspense>
           </RoutedErrorBoundary>
         </Shell>
       </Route>
@@ -208,9 +214,9 @@ function ClerkProviderWithRoutes() {
       appearance={clerkAppearance}
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
-      localization={{
-        signIn: { start: { title: am ? "እንኳን ደህና መጡ" : "Welcome back", subtitle: am ? "ወደ ውብ ጥበብ ይግቡ" : "Sign in to Wub Tibeb" } },
-        signUp: { start: { title: am ? "መለያ ይፍጠሩ" : "Join Wub Tibeb", subtitle: am ? "Wear. Share. Repeat. · ቀሚስ ለቀሚስ" : "Wear. Share. Repeat." } },
+      localization={am?clerkAm:{
+        signIn: { start: { title:"Welcome back", subtitle:"Sign in to Wub Tibeb" } },
+        signUp: { start: { title:"Join Wub Tibeb", subtitle:"Wear. Share. Repeat." } },
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}

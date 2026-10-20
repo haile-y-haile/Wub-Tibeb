@@ -36,28 +36,25 @@ function toError(value: unknown): Error {
 }
 
 function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
+  const am=localStorage.getItem("kemis-lang")==="am";
+  // React.lazy remembers a failed import. Resetting only this boundary cannot
+  // recover it; reload the document after a network/deployment chunk failure.
+  const importFailed=/dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk/i.test(error.message);
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-6">
       <div className="max-w-lg w-full text-center">
         <h1 className="text-xl font-semibold text-gray-900">
-          Something went wrong
+          {am?"ችግር ተፈጥሯል":"Something went wrong"}
         </h1>
         <p className="mt-2 text-sm text-gray-600">
-          This part of the app hit an error. The rest of the app is still
-          running.
+          {am?"ይህን ገጽ ማሳየት አልተቻለም። እባክዎ እንደገና ይሞክሩ።":"This page could not be displayed. Please try again."}
         </p>
-        {/* Dev only: messages can carry API responses and other internals. */}
-        {import.meta.env.DEV ? (
-          <pre className="mt-4 overflow-x-auto rounded bg-gray-100 p-3 text-left text-xs text-gray-800">
-            {error.message || String(error)}
-          </pre>
-        ) : null}
         <button
           type="button"
-          onClick={resetError}
+          onClick={()=>importFailed?location.reload():resetError()}
           className="mt-4 rounded bg-gray-900 px-4 py-2 text-sm text-white hover:bg-gray-700"
         >
-          Try again
+          {importFailed?(am?"ገጹን እንደገና ጫን":"Reload page"):(am?"እንደገና ሞክር":"Try again")}
         </button>
       </div>
     </div>

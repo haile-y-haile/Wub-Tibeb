@@ -134,7 +134,12 @@ export const SaveProfileResponse = zod.object({
 }))
 
 
+export const getListingsQueryBeforeMax = 160;
+
+
+
 export const GetListingsQueryParams = zod.object({
+  "before": zod.coerce.string().max(getListingsQueryBeforeMax).optional(),
   "q": zod.coerce.string().optional(),
   "occasion": zod.coerce.string().optional(),
   "color": zod.coerce.string().optional(),
@@ -557,6 +562,17 @@ export const SwipeDressResponse = zod.object({
 })
 
 
+export const getMatchesQueryBeforeMax = 160;
+
+export const getMatchesQueryIdMax = 160;
+
+
+
+export const GetMatchesQueryParams = zod.object({
+  "before": zod.coerce.string().max(getMatchesQueryBeforeMax).optional(),
+  "id": zod.coerce.string().max(getMatchesQueryIdMax).optional()
+})
+
 export const getMatchesResponseDressAOneTitleMin = 3;
 export const getMatchesResponseDressAOneTitleMax = 100;
 
@@ -702,6 +718,14 @@ export const GetMessagesParams = zod.object({
   "id": zod.coerce.string()
 })
 
+export const getMessagesQueryBeforeMax = 160;
+
+
+
+export const GetMessagesQueryParams = zod.object({
+  "before": zod.coerce.string().max(getMessagesQueryBeforeMax).optional()
+})
+
 export const GetMessagesResponseItem = zod.object({
   "id": zod.string(),
   "senderId": zod.string(),
@@ -737,11 +761,14 @@ export const UpdateExchangeParams = zod.object({
 
 export const updateExchangeBodyProposalMax = 500;
 
+export const updateExchangeBodyExpectedProposalMax = 500;
+
 
 
 export const UpdateExchangeBody = zod.object({
   "action": zod.enum(['propose', 'accept', 'complete', 'cancel']),
-  "proposal": zod.string().max(updateExchangeBodyProposalMax).optional()
+  "proposal": zod.string().max(updateExchangeBodyProposalMax).optional(),
+  "expectedProposal": zod.string().max(updateExchangeBodyExpectedProposalMax).optional().describe('Required when accepting; must exactly match the proposal the member reviewed.')
 })
 
 export const updateExchangeResponseDressAOneTitleMin = 3;
@@ -908,6 +935,15 @@ export const BlockUserResponse = zod.object({
 })
 
 
+export const getNotificationsQueryBeforeMax = 160;
+
+
+
+export const GetNotificationsQueryParams = zod.object({
+  "before": zod.coerce.string().max(getNotificationsQueryBeforeMax).optional(),
+  "unread": zod.coerce.boolean().optional()
+})
+
 export const GetNotificationsResponseItem = zod.object({
   "id": zod.string(),
   "text": zod.string(),
@@ -929,18 +965,27 @@ export const GetCommunityResponse = zod.object({
 })
 
 
+export const getModerationQueryBeforeMax = 160;
+
+
+
+export const GetModerationQueryParams = zod.object({
+  "before": zod.coerce.string().max(getModerationQueryBeforeMax).optional()
+})
+
 export const GetModerationResponseItem = zod.object({
   "id": zod.string(),
   "listingId": zod.string(),
   "reason": zod.string(),
-  "status": zod.string()
+  "status": zod.string(),
+  "handoffHold": zod.boolean().optional()
 })
 export const GetModerationResponse = zod.array(GetModerationResponseItem)
 
 
 export const ModerateReportBody = zod.object({
   "reportId": zod.string(),
-  "action": zod.enum(['dismiss', 'hide'])
+  "action": zod.enum(['dismiss', 'hide', 'close_dispute'])
 })
 
 export const ModerateReportResponse = zod.object({

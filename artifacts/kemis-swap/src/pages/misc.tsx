@@ -1,6 +1,10 @@
 import { useClerk } from "@clerk/react";
 import { Bell, EyeOff, LogOut, X } from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { relativeTime } from "@/lib/localized-copy";
+import { useNotificationPages,useReportPages } from "@/lib/paged-queries";
+import { MoreButton } from "@/components/more-button";
+import { useState } from "react";
+import { AlertDialog,AlertDialogContent,AlertDialogHeader,AlertDialogTitle,AlertDialogDescription,AlertDialogFooter,AlertDialogCancel,AlertDialogAction } from "@/components/ui/alert-dialog";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -33,9 +37,9 @@ export function ProfilePage() {
 }
 
 export function NotificationsPage() {
-  const { t } = useI18n();
+  const { t, e, lang } = useI18n();
   const qc = useQueryClient();
-  const q = useGetNotifications({ query: { queryKey: getGetNotificationsQueryKey(), refetchInterval: 20000 } });
+  const q = useNotificationPages();
   const read = useReadNotifications();
   const unread = q.data?.some((n) => !n.read);
   return (
@@ -51,12 +55,13 @@ export function NotificationsPage() {
             {q.data.map((n) => (
               <li key={n.id} className={cn("flex gap-3 rounded-xl p-3", n.read ? "bg-card/60" : "paper tibeb-edge")} data-testid={`notification-${n.id}`}>
                 <Bell className={cn("mt-0.5 h-4 w-4 shrink-0", n.read ? "text-muted-foreground" : "text-accent")} />
-                <div><p className={cn("text-sm", !n.read && "font-semibold")}>{n.text}</p>
-                  <p className="text-xs text-muted-foreground">{formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}</p></div>
+                <div><p className={cn("text-sm", !n.read && "font-semibold")}>{e(n.text)}</p>
+                  <p className="text-xs text-muted-foreground">{relativeTime(n.createdAt, lang)}</p></div>
               </li>
             ))}
           </ul>
         )}
+      <MoreButton q={q} />
     </div>
   );
 }
@@ -67,8 +72,9 @@ export function ModerationPage() {
   const qc = useQueryClient();
   const { data: me } = useGetProfile({ query: { queryKey: getGetProfileQueryKey(), retry: false } });
   const isAdmin = me?.role === "admin";
-  const q = useGetModeration({ query: { queryKey: getGetModerationQueryKey(), enabled: isAdmin } });
+  const q = useReportPages(isAdmin);
   const mod = useModerateReport();
+  const [resolveId,setResolveId]=useState<string|null>(null);
   if (!isAdmin) return <EmptyState title={t("adminOnly")} />;
   return (
     <div className="mx-auto max-w-2xl">
@@ -83,7 +89,8 @@ export function ModerationPage() {
                   <Link href={`/dress/${r.listingId}`} className="text-sm font-semibold text-primary underline underline-offset-4">{r.listingId.slice(0, 8)}</Link>
                   <span className="rounded-full bg-secondary px-2 py-0.5 text-xs font-semibold">{e(r.status)}</span>
                 </div>
-                <p className="mt-2 text-sm">{r.reason}</p>
+                <p className="mt-2 text-sm">{e(r.reason)}</p>
+                {r.handoffHold && <Button className="mt-3" variant="destructive" disabled={mod.isPending} onClick={()=>setResolveId(r.id)} data-testid={`button-resolve-${r.id}`}>{t("closeDispute")}</Button>}
                 {!["dismissed", "hidden", "resolved", "closed"].includes(r.status) ? (
                   <div className="mt-3 flex gap-2">
                     {(["dismiss", "hide"] as const).map((a) => (
@@ -101,6 +108,18 @@ export function ModerationPage() {
             ))}
           </ul>
         )}
+      <MoreButton q={q} />
+      <AlertDialog open={!!resolveId} onOpenChange={open=>{if(!open)setResolveId(null)}}>
+        <AlertDialogContent className="bg-card">
+          <AlertDialogHeader><AlertDialogTitle>{t("closeDispute")}</AlertDialogTitle><AlertDialogDescription>{t("closeDisputeConfirm")}</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogFooter><AlertDialogCancel>{t("back")}</AlertDialogCancel><AlertDialogAction disabled={mod.isPending} onClick={()=>{
+            if(resolveId)mod.mutate({data:{reportId:resolveId,action:"close_dispute"}},{
+              onSuccess:()=>{setResolveId(null);qc.invalidateQueries({queryKey:getGetModerationQueryKey()});qc.invalidateQueries({queryKey:getGetListingsQueryKey()});toast({title:t("saved")});},
+              onError:err=>toast({title:errMsg(err,t("error")),variant:"destructive"}),
+            });
+          }}>{t("closeDispute")}</AlertDialogAction></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

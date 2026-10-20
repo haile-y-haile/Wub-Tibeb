@@ -64,13 +64,15 @@ export async function swipe(uid: string, input: {targetId:string;offeredId?:stri
     const reciprocal = await c.query("SELECT 1 FROM kemis_swipes WHERE user_id=$1 AND offered_id=$2 AND target_id=$3 AND direction='like'",[target.ownerId,target.id,offered.id]);
     if (!reciprocal.rowCount) return {matched:false};
     const [a,b] = [offered,target].sort((x,y)=>x.id.localeCompare(y.id));
-    const r = await c.query("INSERT INTO kemis_matches(id,dress_a,dress_b,user_a,user_b) VALUES($1,$2,$3,$4,$5) ON CONFLICT(dress_a,dress_b) DO UPDATE SET id=kemis_matches.id RETURNING id",[randomUUID(),a.id,b.id,a.ownerId,b.ownerId]);
-    await notify(c,uid,"It's a match! You both chose the same two kemis.");
-    await notify(c,target.ownerId,"It's a match! You both chose the same two kemis.");
+    const r = await c.query("INSERT INTO kemis_matches(id,dress_a,dress_b,user_a,user_b) VALUES($1,$2,$3,$4,$5) ON CONFLICT(dress_a,dress_b) WHERE status <> 'cancelled' DO UPDATE SET id=kemis_matches.id RETURNING id,(xmax=0) AS created",[randomUUID(),a.id,b.id,a.ownerId,b.ownerId]);
+    if(r.rows[0].created) {
+      await notify(c,uid,"It's a match! You both chose the same two kemis.");
+      await notify(c,target.ownerId,"It's a match! You both chose the same two kemis.");
+    }
     return {matched:true,matchId:r.rows[0].id};
   });
 }
-export async function exchange(uid: string,id: string,input:{action:string;proposal?:string}) {
+export async function exchange(uid: string,id: string,input:{action:string;proposal?:string;expectedProposal?:string}) {
   return transaction(async c => {
     const m = await loadMatch(c,id,uid);
     if (["completed","cancelled"].includes(m.status)) fail(409,"This exchange is closed");
@@ -79,9 +81,12 @@ export async function exchange(uid: string,id: string,input:{action:string;propo
     if (input.action==="propose") {
       if (m.status==="accepted") fail(409,"Cancel the accepted exchange before changing plans");
       if (!input.proposal?.trim()) fail(400,"Add a meeting place and time");
+      if(m.status==="proposed" && m.proposal===input.proposal!.trim()) return matchView(c,m);
       m.proposal=input.proposal!.trim(); m.accepted_by=[]; m.completed_by=[]; m.status="proposed";
     } else if(input.action==="accept") {
       if (!["proposed","accepted"].includes(m.status)) fail(409,"Propose an exchange first");
+      if(input.expectedProposal!==m.proposal) fail(409,"The proposal changed. Review the latest plan before accepting.");
+      if(m.accepted_by.includes(uid)) return matchView(c,m);
       if (!m.accepted_by.includes(uid)) m.accepted_by.push(uid);
       if(m.accepted_by.length===2) {
         const conflict = await c.query("SELECT 1 FROM kemis_matches WHERE id<>$1 AND status='accepted' AND (dress_a=ANY($2::text[]) OR dress_b=ANY($2::text[]))",[id,[m.dress_a,m.dress_b]]);
@@ -91,6 +96,7 @@ export async function exchange(uid: string,id: string,input:{action:string;propo
       }
     } else if(input.action==="complete") {
       if(m.status!=="accepted" || m.accepted_by.length!==2) fail(409,"Both people must accept before confirming completion");
+      if(m.completed_by.includes(uid)) return matchView(c,m);
       if(!m.completed_by.includes(uid)) m.completed_by.push(uid);
       if(m.completed_by.length===2) {
         m.status="completed";
@@ -101,16 +107,41 @@ export async function exchange(uid: string,id: string,input:{action:string;propo
       if(m.completed_by.length) fail(409,"A participant has confirmed handoff. Report a problem instead of cancelling.");
       if(m.status==="accepted") await c.query("UPDATE kemis_listings SET status='active' WHERE id=ANY($1::text[]) AND status='reserved'",[[m.dress_a,m.dress_b]]);
       m.status="cancelled";
+      await c.query("DELETE FROM kemis_swipes WHERE (offered_id=$1 AND target_id=$2) OR (offered_id=$2 AND target_id=$1)",[m.dress_a,m.dress_b]);
     } else fail(400,"Invalid action");
     await c.query("UPDATE kemis_matches SET status=$2,proposal=$3,accepted_by=$4,completed_by=$5 WHERE id=$1",[id,m.status,m.proposal,m.accepted_by,m.completed_by]);
     await notify(c,uid===m.user_a?m.user_b:m.user_a,`Your exchange was updated: ${input.action}.`);
     return matchView(c,m);
   });
 }
+/** A confirmed physical handoff must never silently release either garment. */
+export async function cancelOpenMatchesSafely(c: Client, rows: any[]) {
+  for(const m of rows) {
+    if(m.status==="accepted" && m.completed_by.length>0) continue;
+    if(m.status==="accepted") await c.query("UPDATE kemis_listings SET status='active' WHERE id=ANY($1::text[]) AND status='reserved'",[[m.dress_a,m.dress_b]]);
+    await c.query("UPDATE kemis_matches SET status='cancelled' WHERE id=$1",[m.id]);
+    // A future attempt must get fresh interest from BOTH members.
+    await c.query("DELETE FROM kemis_swipes WHERE (offered_id=$1 AND target_id=$2) OR (offered_id=$2 AND target_id=$1)",[m.dress_a,m.dress_b]);
+  }
+}
+/** Moderator closure is NOT a completed swap and never relists handed-off items. */
+export async function closeHandoffDisputes(c:Client,listingId:string) {
+  const ms=await c.query("SELECT * FROM kemis_matches WHERE (dress_a=$1 OR dress_b=$1) AND status='accepted' AND cardinality(completed_by)>0",[listingId]);
+  if(!ms.rowCount) fail(409,"No unresolved handoff dispute for this dress");
+  for(const m of ms.rows) {
+    await c.query("UPDATE kemis_listings SET status='archived' WHERE id=ANY($1::text[])",[[m.dress_a,m.dress_b]]);
+    await c.query("UPDATE kemis_matches SET status='cancelled' WHERE id=$1",[m.id]);
+    await c.query("DELETE FROM kemis_swipes WHERE (offered_id=$1 AND target_id=$2) OR (offered_id=$2 AND target_id=$1)",[m.dress_a,m.dress_b]);
+    for(const uid of [m.user_a,m.user_b]) await notify(c,uid,"A moderator closed the disputed exchange. Both garments are archived; the exchange is not marked completed.");
+  }
+}
 export async function sendChat(uid:string,id:string,text:string) {
   return transaction(async c=>{
     const m=await loadMatch(c,id,uid);
     if(m.status==="cancelled") fail(409,"Exchange is cancelled");
+    if(!text.trim()) fail(400,"Message cannot be blank");
+    const recent=await c.query("SELECT count(*)::int n FROM kemis_messages WHERE sender_id=$1 AND created_at>now()-interval '1 minute'",[uid]);
+    if(recent.rows[0].n>=30) fail(429,"Too many messages. Please wait a minute.");
     const r=await c.query("INSERT INTO kemis_messages(id,match_id,sender_id,text) VALUES($1,$2,$3,$4) RETURNING *",[randomUUID(),id,uid,text]);
     await notify(c,uid===m.user_a?m.user_b:m.user_a,"You have a new message about your kemis exchange.");
     return {id:r.rows[0].id,senderId:uid,text,createdAt:r.rows[0].created_at.toISOString()};

@@ -1,4 +1,4 @@
-import { pgTable,text,jsonb,boolean,timestamp,integer,index,unique,primaryKey,check } from "drizzle-orm/pg-core";
+import { pgTable,text,jsonb,boolean,timestamp,integer,index,uniqueIndex,primaryKey,check } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const profiles=pgTable("kemis_profiles",{
@@ -27,7 +27,7 @@ export const matches=pgTable("kemis_matches",{
   acceptedBy:text("accepted_by").array().notNull().default(sql`'{}'::text[]`),
   completedBy:text("completed_by").array().notNull().default(sql`'{}'::text[]`),
   createdAt:timestamp("created_at",{withTimezone:true}).notNull().defaultNow(),
-},t=>[unique("kemis_matches_dress_a_dress_b_key").on(t.dressA,t.dressB),
+},t=>[uniqueIndex("kemis_matches_current_pair").on(t.dressA,t.dressB).where(sql`${t.status} <> 'cancelled'`),
   check("kemis_matches_check",sql`${t.dressA} < ${t.dressB}`),check("kemis_matches_check1",sql`${t.userA} <> ${t.userB}`),
   check("kemis_matches_status_check",sql`${t.status} IN ('matched','proposed','accepted','completed','cancelled')`)]);
 export const messages=pgTable("kemis_messages",{

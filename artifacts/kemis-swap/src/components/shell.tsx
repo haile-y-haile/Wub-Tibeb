@@ -31,7 +31,7 @@ function useOnline() {
 }
 
 export function LangToggle() {
-  const { lang, setLang } = useI18n();
+  const { lang, setLang, t } = useI18n();
   const qc = useQueryClient();
   const save = useSaveProfile();
   const { data: profile } = useGetProfile({ query: { queryKey: getGetProfileQueryKey(), retry: false, enabled: false } });
@@ -44,11 +44,11 @@ export function LangToggle() {
     }
   };
   return (
-    <div role="group" aria-label="Language" className="flex rounded-full border border-border bg-card p-0.5 text-xs font-semibold">
+    <div role="group" aria-label={t("language")} className="flex rounded-full border border-border bg-card p-0.5 text-xs font-semibold">
       {(["en", "am"] as const).map((l) => (
         <button key={l} type="button" onClick={() => pick(l)} aria-pressed={lang === l} data-testid={`button-lang-${l}`}
           className={cn("min-h-8 rounded-full px-3 transition-colors", lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
-          {l === "en" ? "EN" : <span lang="am">አማ</span>}
+          {l === "en" ? t("englishShort") : <span lang="am">አማ</span>}
         </button>
       ))}
     </div>
@@ -56,19 +56,19 @@ export function LangToggle() {
 }
 
 function SignedInExtras() {
-  const { data: notes } = useGetNotifications({ query: { queryKey: getGetNotificationsQueryKey(), refetchInterval: 20000 } });
+  const { data: notes } = useGetNotifications({unread:true},{ query: { queryKey: getGetNotificationsQueryKey({unread:true}), refetchInterval: 20000 } });
   const unread = notes?.filter((n) => !n.read).length ?? 0;
   const { t } = useI18n();
   return (
     <Link href="/notifications" className="relative grid h-10 w-10 place-items-center rounded-full border border-border bg-card" aria-label={`${t("alerts")} ${unread}`} data-testid="link-notifications">
       <Bell className="h-[18px] w-[18px] text-primary" />
-      {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground" data-testid="text-unread-count">{unread}</span>}
+      {unread > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground" data-testid="text-unread-count">{unread>=100?"99+":unread}</span>}
     </Link>
   );
 }
 
 export function Shell({ children }: { children: ReactNode }) {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   const [loc] = useLocation();
   const install = useInstall();
   const online = useOnline();
@@ -94,15 +94,15 @@ export function Shell({ children }: { children: ReactNode }) {
       )}
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-2 px-4">
-          <Link href="/" className="flex items-center gap-2" data-testid="link-home" aria-label="Wub Tibeb, ውብ ጥበብ">
+          <Link href="/" className="flex items-center gap-2" data-testid="link-home" aria-label={t("appName")}>
             <img src={`${basePath}/logo.svg`} alt="" className="h-8 w-8" />
             <span className="flex flex-col">
-              <span className="wordmark text-[17px] text-primary">Wub Tibeb</span>
-              <span lang="am" className="wordmark-am text-[11px] text-muted-foreground">ውብ ጥበብ</span>
+              <span className="wordmark text-[17px] text-primary">{t("appName")}</span>
+              {lang==="en" && <span lang="am" className="wordmark-am text-xs text-muted-foreground">ውብ ጥበብ</span>}
             </span>
           </Link>
           <Show when="signed-in">
-            <nav className="ml-6 hidden gap-1 md:flex" aria-label="Main">
+            <nav className="ml-6 hidden gap-1 md:flex" aria-label={t("mainNavigation")}>
               {nav.map((n) => (
                 <Link key={n.href} href={n.href} data-testid={`link-nav-${n.href.slice(1)}`}
                   className={cn("rounded-full px-3 py-1.5 text-sm font-medium", active(n.href) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground")}>
@@ -133,11 +133,11 @@ export function Shell({ children }: { children: ReactNode }) {
       <Show when="signed-in"><main className="mx-auto max-w-5xl safe-bottom md:pb-10">{children}</main></Show>
       <Show when="signed-out"><main className="mx-auto max-w-5xl pb-10">{children}</main></Show>
       <footer className="mx-auto hidden max-w-5xl items-center justify-between gap-4 border-t border-border/70 px-4 py-6 text-xs text-muted-foreground md:flex" data-testid="footer-brand">
-        <span className="flex items-center gap-2"><img src={`${basePath}/logo.svg`} alt="" className="h-5 w-5" /><span className="wordmark text-sm text-primary">Wub Tibeb</span><span lang="am" className="wordmark-am">ውብ ጥበብ</span></span>
-        <span className="font-display italic">Wear. Share. Repeat.</span>
+        <span className="flex items-center gap-2"><img src={`${basePath}/logo.svg`} alt="" className="h-5 w-5" /><span className="wordmark text-sm text-primary">{t("appName")}</span>{lang==="en" && <span lang="am" className="wordmark-am">ውብ ጥበብ</span>}</span>
+        <span className="font-display italic">{t("tagline")}</span>
       </footer>
       <Show when="signed-in">
-        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden" aria-label="Main" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden" aria-label={t("mainNavigation")} style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
           <div className="tibeb-thin" aria-hidden />
           <div className="flex">
             {nav.map((n) => {

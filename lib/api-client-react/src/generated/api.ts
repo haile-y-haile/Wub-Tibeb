@@ -23,6 +23,10 @@ import type {
   ExchangeInput,
   GetCommunity200,
   GetListingsParams,
+  GetMatchesParams,
+  GetMessagesParams,
+  GetModerationParams,
+  GetNotificationsParams,
   HealthStatus,
   Listing,
   ListingInput,
@@ -757,17 +761,24 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getSwipeDressMutationOptions(options));
     }
 
-export const getGetMatchesUrl = () => {
+export const getGetMatchesUrl = (params?: GetMatchesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/matches`
+  return stringifiedParams.length > 0 ? `/api/matches?${stringifiedParams}` : `/api/matches`
 }
 
-export const getMatches = async ( options?: Parameters<typeof customFetch>[1]): Promise<Match[]> => {
+export const getMatches = async (params?: GetMatchesParams, options?: Parameters<typeof customFetch>[1]): Promise<Match[]> => {
 
-  return customFetch<Match[]>(getGetMatchesUrl(),
+  return customFetch<Match[]>(getGetMatchesUrl(params),
   {
     ...options,
     method: 'GET'
@@ -780,23 +791,23 @@ export const getMatches = async ( options?: Parameters<typeof customFetch>[1]): 
 
 
 
-export const getGetMatchesQueryKey = () => {
+export const getGetMatchesQueryKey = (params?: GetMatchesParams,) => {
     return [
-    `/api/matches`
+    `/api/matches`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetMatchesQueryOptions = <TData = Awaited<ReturnType<typeof getMatches>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMatchesQueryOptions = <TData = Awaited<ReturnType<typeof getMatches>>, TError = ErrorType<unknown>>(params?: GetMatchesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMatchesQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetMatchesQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMatches>>> = ({ signal }) => getMatches({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMatches>>> = ({ signal }) => getMatches(params, { signal, ...requestOptions });
 
 
 
@@ -811,11 +822,11 @@ export type GetMatchesQueryError = ErrorType<unknown>
 
 
 export function useGetMatches<TData = Awaited<ReturnType<typeof getMatches>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetMatchesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMatches>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMatchesQueryOptions(options)
+  const queryOptions = getGetMatchesQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -828,17 +839,26 @@ export function useGetMatches<TData = Awaited<ReturnType<typeof getMatches>>, TE
 
 
 
-export const getGetMessagesUrl = (id: string,) => {
+export const getGetMessagesUrl = (id: string,
+    params?: GetMessagesParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/matches/${id}/messages`
+  return stringifiedParams.length > 0 ? `/api/matches/${id}/messages?${stringifiedParams}` : `/api/matches/${id}/messages`
 }
 
-export const getMessages = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<Message[]> => {
+export const getMessages = async (id: string,
+    params?: GetMessagesParams, options?: Parameters<typeof customFetch>[1]): Promise<Message[]> => {
 
-  return customFetch<Message[]>(getGetMessagesUrl(id),
+  return customFetch<Message[]>(getGetMessagesUrl(id,params),
   {
     ...options,
     method: 'GET'
@@ -851,23 +871,25 @@ export const getMessages = async (id: string, options?: Parameters<typeof custom
 
 
 
-export const getGetMessagesQueryKey = (id: string,) => {
+export const getGetMessagesQueryKey = (id: string,
+    params?: GetMessagesParams,) => {
     return [
-    `/api/matches/${id}/messages`
+    `/api/matches/${id}/messages`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetMessagesQueryOptions = <TData = Awaited<ReturnType<typeof getMessages>>, TError = ErrorType<unknown>>(id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetMessagesQueryOptions = <TData = Awaited<ReturnType<typeof getMessages>>, TError = ErrorType<unknown>>(id: string,
+    params?: GetMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetMessagesQueryKey(id);
+  const queryKey =  queryOptions?.queryKey ?? getGetMessagesQueryKey(id,params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMessages>>> = ({ signal }) => getMessages(id, { signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getMessages>>> = ({ signal }) => getMessages(id,params, { signal, ...requestOptions });
 
 
 
@@ -882,11 +904,12 @@ export type GetMessagesQueryError = ErrorType<unknown>
 
 
 export function useGetMessages<TData = Awaited<ReturnType<typeof getMessages>>, TError = ErrorType<unknown>>(
- id: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ id: string,
+    params?: GetMessagesParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getMessages>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetMessagesQueryOptions(id,options)
+  const queryOptions = getGetMessagesQueryOptions(id,params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -1229,17 +1252,24 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getBlockUserMutationOptions(options));
     }
 
-export const getGetNotificationsUrl = () => {
+export const getGetNotificationsUrl = (params?: GetNotificationsParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/notifications`
+  return stringifiedParams.length > 0 ? `/api/notifications?${stringifiedParams}` : `/api/notifications`
 }
 
-export const getNotifications = async ( options?: Parameters<typeof customFetch>[1]): Promise<Notification[]> => {
+export const getNotifications = async (params?: GetNotificationsParams, options?: Parameters<typeof customFetch>[1]): Promise<Notification[]> => {
 
-  return customFetch<Notification[]>(getGetNotificationsUrl(),
+  return customFetch<Notification[]>(getGetNotificationsUrl(params),
   {
     ...options,
     method: 'GET'
@@ -1252,23 +1282,23 @@ export const getNotifications = async ( options?: Parameters<typeof customFetch>
 
 
 
-export const getGetNotificationsQueryKey = () => {
+export const getGetNotificationsQueryKey = (params?: GetNotificationsParams,) => {
     return [
-    `/api/notifications`
+    `/api/notifications`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetNotificationsQueryOptions = <TData = Awaited<ReturnType<typeof getNotifications>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetNotificationsQueryOptions = <TData = Awaited<ReturnType<typeof getNotifications>>, TError = ErrorType<unknown>>(params?: GetNotificationsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetNotificationsQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetNotificationsQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getNotifications>>> = ({ signal }) => getNotifications({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getNotifications>>> = ({ signal }) => getNotifications(params, { signal, ...requestOptions });
 
 
 
@@ -1283,11 +1313,11 @@ export type GetNotificationsQueryError = ErrorType<unknown>
 
 
 export function useGetNotifications<TData = Awaited<ReturnType<typeof getNotifications>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetNotificationsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getNotifications>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetNotificationsQueryOptions(options)
+  const queryOptions = getGetNotificationsQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 
@@ -1439,17 +1469,24 @@ export function useGetCommunity<TData = Awaited<ReturnType<typeof getCommunity>>
 
 
 
-export const getGetModerationUrl = () => {
+export const getGetModerationUrl = (params?: GetModerationParams,) => {
+  const normalizedParams = new URLSearchParams();
 
+  Object.entries(params || {}).forEach(([key, value]) => {
 
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : String(value))
+    }
+  });
 
+  const stringifiedParams = normalizedParams.toString();
 
-  return `/api/moderation`
+  return stringifiedParams.length > 0 ? `/api/moderation?${stringifiedParams}` : `/api/moderation`
 }
 
-export const getModeration = async ( options?: Parameters<typeof customFetch>[1]): Promise<Report[]> => {
+export const getModeration = async (params?: GetModerationParams, options?: Parameters<typeof customFetch>[1]): Promise<Report[]> => {
 
-  return customFetch<Report[]>(getGetModerationUrl(),
+  return customFetch<Report[]>(getGetModerationUrl(params),
   {
     ...options,
     method: 'GET'
@@ -1462,23 +1499,23 @@ export const getModeration = async ( options?: Parameters<typeof customFetch>[1]
 
 
 
-export const getGetModerationQueryKey = () => {
+export const getGetModerationQueryKey = (params?: GetModerationParams,) => {
     return [
-    `/api/moderation`
+    `/api/moderation`, ...(params ? [params] : [])
     ] as const;
     }
 
 
-export const getGetModerationQueryOptions = <TData = Awaited<ReturnType<typeof getModeration>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getModeration>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+export const getGetModerationQueryOptions = <TData = Awaited<ReturnType<typeof getModeration>>, TError = ErrorType<unknown>>(params?: GetModerationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getModeration>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 ) => {
 
 const {query: queryOptions, request: requestOptions} = options ?? {};
 
-  const queryKey =  queryOptions?.queryKey ?? getGetModerationQueryKey();
+  const queryKey =  queryOptions?.queryKey ?? getGetModerationQueryKey(params);
 
 
 
-    const queryFn: QueryFunction<Awaited<ReturnType<typeof getModeration>>> = ({ signal }) => getModeration({ signal, ...requestOptions });
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getModeration>>> = ({ signal }) => getModeration(params, { signal, ...requestOptions });
 
 
 
@@ -1493,11 +1530,11 @@ export type GetModerationQueryError = ErrorType<unknown>
 
 
 export function useGetModeration<TData = Awaited<ReturnType<typeof getModeration>>, TError = ErrorType<unknown>>(
-  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getModeration>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+ params?: GetModerationParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getModeration>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
 
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
-  const queryOptions = getGetModerationQueryOptions(options)
+  const queryOptions = getGetModerationQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

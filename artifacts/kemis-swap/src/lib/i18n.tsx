@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from "react";
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
+import { amSystem, ownCopy } from "./localized-copy";
 
 export type Lang = "en" | "am";
 
@@ -105,13 +106,22 @@ const en = {
   required: "Required",
   clear: "Clear",
   results: "results",
+  englishLanguage: "English", amharicLanguage: "አማርኛ", englishShort: "EN",
+  mainNavigation:"Main navigation", chat:"Chat", community:"Community",
+  close:"Close", exampleNeighborhood:"Bole", defaultFabric:"Shemma cotton",
+  exampleTitle:"Ivory kemis with emerald tibeb", exampleEmbroidery:"Green and gold woven tibeb",
+  appDescription:"Habesha kemis-to-kemis exchanges in Ethiopia.",
+  demoCounts:"Browsing demonstration dresses. Community totals exclude samples.",
+  olderMessages:"Load earlier messages", more:"Show more", updatedPlan:"Review the latest handoff proposal before accepting.",
+  closeDispute:"Close handoff dispute",closeDisputeConfirm:"Only after reviewing the report: close the disputed exchange and archive BOTH garments. This preserves the conversation and confirmations, does not relist either garment, and does not mark the exchange completed.",
+  moreOwn:"Show more of my dresses",
 } as const;
 
 type Key = keyof typeof en;
 
 const am: Record<Key, string> = {
   appName: "ውብ ጥበብ",
-  tagline: "Wear. Share. Repeat.",
+  tagline: "ይልበሱ። ያጋሩ። ይድገሙ።",
   taglineSupport: "ይልበሱ። ያጋሩ። ይድገሙ። የተወደደ ቀሚስዎን ሌላ በዓል ያሳዩት።",
   heroLine: "እያንዳንዱ ቀሚስ ከአንድ ጥምቀት በላይ ይገባዋል።",
   heroSub: "የበዓል የሀበሻ ቀሚስዎን በአቅራቢያዎ ካሉ ሴቶች ጋር ይለዋወጡ። ገንዘብ የለም፣ ደላላ የለም — ቀሚስ ለቀሚስ።",
@@ -212,27 +222,40 @@ const am: Record<Key, string> = {
   required: "ያስፈልጋል",
   clear: "አጽዳ",
   results: "ውጤቶች",
+  englishLanguage:"እንግሊዝኛ", amharicLanguage:"አማርኛ", englishShort:"እንግ",
+  mainNavigation:"ዋና ማውጫ", chat:"ውይይት", community:"ማኅበረሰብ",
+  close:"ዝጋ", exampleNeighborhood:"ቦሌ", defaultFabric:"የሸማ ጥጥ",
+  exampleTitle:"አረንጓዴ ጥበብ ያለው ክሬም ቀሚስ", exampleEmbroidery:"አረንጓዴና ወርቃማ ጥበብ",
+  appDescription:"በኢትዮጵያ የሀበሻ ቀሚስ ለቀሚስ ልውውጥ።",
+  demoCounts:"የማሳያ ቀሚሶችን እያዩ ነው። የማኅበረሰቡ ቁጥሮች ናሙናዎችን አያካትቱም።",
+  olderMessages:"የቆዩ መልእክቶችን አሳይ", more:"ተጨማሪ አሳይ", updatedPlan:"ከመቀበልዎ በፊት የቅርብ ጊዜውን የርክክብ ሀሳብ ይመልከቱ።",
+  closeDispute:"የርክክብ ክርክርን ዝጋ",closeDisputeConfirm:"ሪፖርቱን ከመረመሩ በኋላ ብቻ፦ የተከራከረውን ልውውጥ ዝጋና ሁለቱንም ቀሚሶች ከልውውጥ አስወግድ። ውይይቱና ማረጋገጫዎቹ ይቀመጣሉ፤ ቀሚሶቹ እንደገና አይቀርቡም፤ ልውውጡም እንደተጠናቀቀ አይቆጠርም።",
+  moreOwn:"ተጨማሪ የራሴን ቀሚሶች አሳይ",
 };
 
 const amEnums: Record<string, string> = {
   Timket: "ጥምቀት", Meskel: "መስቀል", Enkutatash: "እንቁጣጣሽ", Fasika: "ፋሲካ", Genna: "ገና", Wedding: "ሰርግ", "Other holiday": "ሌላ በዓል",
   "Like new": "እንደ አዲስ", Excellent: "በጣም ጥሩ", Good: "ጥሩ", Fair: "መካከለኛ",
   matched: "ተዛምዷል", proposed: "ሀሳብ ቀርቧል", accepted: "ተቀባይነት አግኝቷል", completed: "ተጠናቋል", cancelled: "ተሰርዟል", canceled: "ተሰርዟል",
-  active: "ንቁ", hidden: "ተደብቋል", swapped: "ተለውጧል", open: "ክፍት", dismissed: "ተትቷል", pending: "በመጠበቅ ላይ",
+  active: "ንቁ", archived:"ከልውውጥ ተወግዷል",resolved:"ተዘግቷል",reserved:"ተይዟል", hidden: "ተደብቋል", swapped: "ተለውጧል", open: "ክፍት", dismissed: "ተትቷል", pending: "በመጠበቅ ላይ",
 };
 
 type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (k: Key) => string; e: (v: string) => string };
 const I18n = createContext<Ctx | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => { const l: Lang = localStorage.getItem("kemis-lang") === "am" ? "am" : "en"; document.documentElement.lang = l; return l; });
-  const setLang = useCallback((l: Lang) => {
-    localStorage.setItem("kemis-lang", l);
-    document.documentElement.lang = l;
-    setLangState(l);
-  }, []);
+  const [lang, setLangState] = useState<Lang>(() => {
+    const requested=new URLSearchParams(location.search).get("lang");
+    return requested==="am"||requested==="en"?requested:localStorage.getItem("kemis-lang")==="am"?"am":"en";
+  });
+  useEffect(()=>{
+    localStorage.setItem("kemis-lang",lang);
+    document.documentElement.lang=lang;
+    document.querySelector('link[rel="manifest"]')?.setAttribute("href",`${import.meta.env.BASE_URL}${lang==="am"?"manifest-am.webmanifest":"manifest.webmanifest"}`);
+  },[lang]);
+  const setLang = useCallback((l: Lang) => setLangState(l), []);
   const t = useCallback((k: Key) => (lang === "am" ? am[k] : en[k]), [lang]);
-  const e = useCallback((v: string) => (lang === "am" ? amEnums[v] ?? v : v), [lang]);
+  const e = useCallback((v: string) => (lang === "am" ? ownCopy(amEnums,v) ?? ownCopy(amSystem,v) ?? v : v), [lang]);
   return <I18n.Provider value={{ lang, setLang, t, e }}>{children}</I18n.Provider>;
 }
 
@@ -241,3 +264,4 @@ export function useI18n() {
   if (!c) throw new Error("I18nProvider missing");
   return c;
 }
+export function UiText({name}:{name:Key}) { return useI18n().t(name); }

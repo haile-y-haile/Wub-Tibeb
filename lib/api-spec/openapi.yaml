@@ -40,6 +40,7 @@ paths:
     get:
       operationId: getListings
       parameters:
+        - { name: before, in: query, schema: { type: string, maxLength: 160 } }
         - { name: q, in: query, schema: { type: string } }
         - { name: occasion, in: query, schema: { type: string } }
         - { name: color, in: query, schema: { type: string } }
@@ -121,6 +122,9 @@ paths:
   /matches:
     get:
       operationId: getMatches
+      parameters:
+        - { name: before, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: id, in: query, schema: { type: string, maxLength: 160 } }
       responses:
         "200":
           description: Matches including history
@@ -132,6 +136,8 @@ paths:
       - { name: id, in: path, required: true, schema: { type: string } }
     get:
       operationId: getMessages
+      parameters:
+        - { name: before, in: query, schema: { type: string, maxLength: 160 } }
       responses:
         "200":
           description: Private messages
@@ -198,6 +204,9 @@ paths:
   /notifications:
     get:
       operationId: getNotifications
+      parameters:
+        - { name: before, in: query, schema: { type: string, maxLength: 160 } }
+        - { name: unread, in: query, schema: { type: boolean } }
       responses:
         "200":
           description: Notifications
@@ -230,6 +239,8 @@ paths:
   /moderation:
     get:
       operationId: getModeration
+      parameters:
+        - { name: before, in: query, schema: { type: string, maxLength: 160 } }
       responses:
         "200":
           description: Admin reports
@@ -374,6 +385,10 @@ components:
       properties:
         action: { type: string, enum: [propose, accept, complete, cancel] }
         proposal: { type: string, maxLength: 500 }
+        expectedProposal:
+          type: string
+          maxLength: 500
+          description: Required when accepting; must exactly match the proposal the member reviewed.
     ReportInput:
       type: object
       required: [listingId, reason]
@@ -401,12 +416,13 @@ components:
         listingId: { type: string }
         reason: { type: string }
         status: { type: string }
+        handoffHold: { type: boolean }
     ModerationInput:
       type: object
       required: [reportId, action]
       properties:
         reportId: { type: string }
-        action: { type: string, enum: [dismiss, hide] }
+        action: { type: string, enum: [dismiss, hide, close_dispute] }
     UploadInput:
       type: object
       required: [name, size, contentType]

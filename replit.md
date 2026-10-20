@@ -5,7 +5,8 @@ Ethiopia-first, mobile-first Habesha kemis-to-kemis exchange marketplace. See RE
 ## Brand
 
 - English brand: **Wub Tibeb**. Amharic brand: **ውብ ጥበብ**.
-- Exact tagline in both language experiences: **Wear. Share. Repeat.**
+- Exact English tagline: **Wear. Share. Repeat.** Amharic tagline: **ይልበሱ። ያጋሩ። ይድገሙ።**
+- The Amharic version must be complete Amharic top to bottom, not a mixed English interface.
 - Use refined typography and restrained Ethiopian textile-inspired styling, with readable Amharic script and lightweight assets for affordable Android phones.
 - Do not claim verified trademark or domain availability.
 - Rebranding must not rename existing internal package identifiers, routes, database tables or persisted keys, or change the Habesha kemis-only swap scope.

@@ -9,6 +9,7 @@ import { SafetyActions } from "@/components/safety-actions";
 import { useI18n } from "@/lib/i18n";
 import { photoSrc } from "@/lib/kemis";
 import { cn } from "@/lib/utils";
+import { localizedListing } from "@/lib/localized-copy";
 
 function SignedInBits({ listingId, ownerId }: { listingId: string; ownerId: string }) {
   const [, setLocation] = useLocation();
@@ -19,10 +20,10 @@ function SignedInBits({ listingId, ownerId }: { listingId: string; ownerId: stri
 
 export default function Dress() {
   const { id } = useParams<{ id: string }>();
-  const { t, e } = useI18n();
+  const { t, e, lang } = useI18n();
   const [active, setActive] = useState(0);
   const q = useGetListing(id, { query: { queryKey: getGetListingQueryKey(id), enabled: !!id } });
-  const l = q.data;
+  const l = q.data && localizedListing(q.data,lang);
 
   if (q.isLoading) return <div className="space-y-3 p-4"><Skeleton className="aspect-[3/4] w-full rounded-3xl bg-secondary" /><Skeleton className="h-8 w-2/3 bg-secondary" /></div>;
   if (q.error || !l) return <ErrorState onRetry={() => q.refetch()} message={q.error?.status === 404 ? t("notFound") : undefined} />;

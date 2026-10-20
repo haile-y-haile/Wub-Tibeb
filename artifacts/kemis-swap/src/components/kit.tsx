@@ -7,12 +7,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useI18n } from "@/lib/i18n";
 import { photoSrc } from "@/lib/kemis";
 import { cn } from "@/lib/utils";
+import { localizedListing } from "@/lib/localized-copy";
 
 export function PageHeader({ title, kicker, action }: { title: string; kicker?: string; action?: ReactNode }) {
   return (
     <header className="flex items-end justify-between gap-3 px-4 pt-5 pb-4 rise">
       <div>
-        {kicker && <p lang="en" className="text-[11px] uppercase tracking-[0.18em] text-accent font-semibold">{kicker}</p>}
+        {kicker && <p className="text-[11px] uppercase tracking-[0.18em] text-[#795b25] font-semibold">{kicker}</p>}
         <h1 className="font-display text-3xl font-semibold leading-tight text-primary" data-testid="text-page-title">{title}</h1>
       </div>
       {action}
@@ -83,8 +84,9 @@ export function FitBadge({ className }: { className?: string }) {
   );
 }
 
-export function ListingCard({ l, index = 0, href }: { l: Listing; index?: number; href?: string }) {
-  const { e } = useI18n();
+export function ListingCard({ l: original, index = 0, href }: { l: Listing; index?: number; href?: string }) {
+  const { e, lang } = useI18n();
+  const l=localizedListing(original,lang);
   return (
     <Link href={href ?? `/dress/${l.id}`} className="group block rise" style={{ animationDelay: `${Math.min(index, 8) * 40}ms` }} data-testid={`card-listing-${l.id}`}>
       <div className="relative aspect-[3/4] overflow-hidden rounded-2xl bg-secondary">

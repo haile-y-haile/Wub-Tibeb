@@ -10,4 +10,5 @@ export interface Report {
   listingId: string;
   reason: string;
   status: string;
+  handoffHold?: boolean;
 }

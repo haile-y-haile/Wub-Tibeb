@@ -10,4 +10,9 @@ export interface ExchangeInput {
   action: ExchangeInputAction;
   /** @maxLength 500 */
   proposal?: string;
+  /**
+     * Required when accepting; must exactly match the proposal the member reviewed.
+     * @maxLength 500
+     */
+  expectedProposal?: string;
 }

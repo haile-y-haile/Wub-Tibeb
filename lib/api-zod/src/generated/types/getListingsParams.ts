@@ -6,6 +6,10 @@
  */
 
 export type GetListingsParams = {
+/**
+ * @maxLength 160
+ */
+before?: string;
 q?: string;
 occasion?: string;
 color?: string;
