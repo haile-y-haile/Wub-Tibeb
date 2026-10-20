@@ -1,0 +1,29 @@
+kind = "video"
+videoAspectRatio = "16:9"
+previewPath = "/wub-tibeb-film/"
+title = "ውብ ጥበብ · Wub Tibeb — Animated Introduction"
+description = "An Amharic animated introduction to Wub Tibeb, the Ethiopia-first Habesha kemis exchange project."
+version = "1.0.0"
+id = "artifacts/wub-tibeb-film"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/wub-tibeb-film/" ]
+localPort = 22505
+
+[services.development]
+run = "pnpm --filter @workspace/wub-tibeb-film run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/wub-tibeb-film", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/wub-tibeb-film/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "22505"
+BASE_PATH = "/wub-tibeb-film/"

@@ -1,0 +1,9 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "Kn2DxcswwU2paq-iPt6Pr"
+uri = "file://artifacts/wub-tibeb-film/public/audio/bg_music.mp3"
+type = "audio"
+title = "background music"
+description = "Generated music: Warm Ethio-jazz inspired instrumental scoring a short brand film for a Habesha dress exchange app. Plucked krar-like lyre, soft vibraphone, upright bass, light hand percussion, 100 B…"

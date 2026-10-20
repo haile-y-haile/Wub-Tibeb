@@ -1,0 +1,101 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400..800;1,9..144,400..700&family=Figtree:wght@400;500;600;700&family=Noto+Sans+Ethiopic:wght@400;600;700&display=block');
+@import 'tailwindcss';
+
+/* REPLACE THESE -- define your own palette and fonts for each video */
+:root {
+  --color-primary: #1f4a36;
+  --color-secondary: #5d6b5f;
+  --color-accent: #c9a14a;
+  --color-bg-light: #f6efe0;
+  --color-bg-dark: #14261d;
+  --color-bg-muted: #ece2cc;
+  --color-text-primary: #14261d;
+  --color-text-secondary: #4f5d52;
+  --color-text-muted: #8a8a72;
+  --color-text-inverse: #f6efe0;
+  --color-success: #1f4a36;
+  --color-warning: #c9a14a;
+  --color-error: #b04a33;
+  --ivory: #f6efe0; --forest: #1f4a36; --gold: #c9a14a; --clay: #b04a33; --ink: #14261d;
+  --font-display: 'Fraunces', 'Wub Ethiopic', 'Noto Sans Ethiopic', Georgia, serif;
+  --font-body: 'Figtree', 'Wub Ethiopic', 'Noto Sans Ethiopic', system-ui, sans-serif;
+  --font-am: 'Wub Ethiopic', 'Noto Sans Ethiopic', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+}
+
+@theme inline {
+  --color-primary: var(--color-primary);
+  --color-secondary: var(--color-secondary);
+  --color-accent: var(--color-accent);
+  --color-bg-light: var(--color-bg-light);
+  --color-bg-dark: var(--color-bg-dark);
+  --color-bg-muted: var(--color-bg-muted);
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+  --color-text-inverse: var(--color-text-inverse);
+  --color-success: var(--color-success);
+  --color-warning: var(--color-warning);
+  --color-error: var(--color-error);
+  --font-display: var(--font-display);
+  --font-body: var(--font-body);
+  --font-mono: var(--font-mono);
+}
+
+body {
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.video-media-frame {
+  box-sizing: border-box;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
+  width: 100%;
+}
+
+.video-media-frame > :is(img, video) {
+  display: block;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  width: 100%;
+}
+
+.video-media-frame[data-media-fit='contain'] > :is(img, video) {
+  object-fit: contain;
+}
+
+.video-media-frame[data-media-position='top'] > :is(img, video) {
+  object-position: top;
+}
+
+.video-media-frame[data-media-position='right'] > :is(img, video) {
+  object-position: right;
+}
+
+.video-media-frame[data-media-position='bottom'] > :is(img, video) {
+  object-position: bottom;
+}
+
+.video-media-frame[data-media-position='left'] > :is(img, video) {
+  object-position: left;
+}
+
+@font-face{ font-family:"Wub Ethiopic"; src:url("/fonts/noto-sans-ethiopic-subset.woff2") format("woff2"); font-weight:400 700; font-display:block; unicode-range:U+1200-139F,U+2D80-2DDF,U+AB00-AB2F; }
+body{ background: var(--ivory); margin:0; }
+.f-display{ font-family: var(--font-display); font-optical-sizing:auto; letter-spacing:-0.02em; }
+.f-body{ font-family: var(--font-body); }
+.f-am{ font-family: var(--font-am); letter-spacing:0; line-height:1.35; }
+.eyebrow{ font-family: var(--font-body); font-weight:600; font-size:2vmin; letter-spacing:0.28em; text-transform:uppercase; }
+.grain::after{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.32; background-image: radial-gradient(rgba(120,95,40,.22) 1px, transparent 1px); background-size: 4px 4px; }
+.tibeb-band{ background:
+  linear-gradient(135deg, var(--gold) 25%, transparent 25%) -1.2vmin 0/2.4vmin 2.4vmin,
+  linear-gradient(225deg, var(--gold) 25%, transparent 25%) -1.2vmin 0/2.4vmin 2.4vmin,
+  linear-gradient(315deg, var(--forest) 25%, transparent 25%) 0 0/2.4vmin 2.4vmin,
+  linear-gradient(45deg, var(--forest) 25%, transparent 25%) 0 0/2.4vmin 2.4vmin,
+  var(--clay); }
+.tibeb-thin{ background: repeating-linear-gradient(90deg, var(--forest) 0 1.6vmin, var(--gold) 1.6vmin 2.4vmin, var(--clay) 2.4vmin 2.8vmin, var(--gold) 2.8vmin 3.6vmin); }
