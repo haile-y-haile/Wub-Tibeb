@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlayCircle } from "lucide-react";
 import { useGetCommunity, useGetListings, getGetCommunityQueryKey, getGetListingsQueryKey } from "@workspace/api-client-react";
 import { ErrorState, GridSkeleton, ListingCard, SafetyNote } from "@/components/kit";
 import { useI18n } from "@/lib/i18n";
@@ -64,6 +64,9 @@ export default function Home() {
             </li>
           ))}
         </ol>
+        <Link href="/how-it-works" className="mt-4 inline-flex min-h-11 items-center gap-2 rounded-full border border-primary px-5 text-sm font-semibold text-primary" data-testid="link-how-it-works">
+          <PlayCircle className="h-4 w-4" />{t("howItWorks")}
+        </Link>
       </section>
 
       <section>

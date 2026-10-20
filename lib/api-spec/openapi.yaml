@@ -260,6 +260,40 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Success" }
+  /storage/public-objects/tutorials/{filename}:
+    get:
+      operationId: getTutorialAsset
+      description: Public curated first-time-user tutorial video, poster or caption track. Supports HEAD and single byte ranges. Never exposes member uploads.
+      parameters:
+        - name: filename
+          in: path
+          required: true
+          schema:
+            type: string
+            pattern: '^(listing|matching|exchange)-(am|en)\.(mp4|webp|vtt)$'
+        - name: Range
+          in: header
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: Full public tutorial asset
+          content:
+            video/mp4:
+              schema: { type: string, format: binary }
+            image/webp:
+              schema: { type: string, format: binary }
+            text/vtt:
+              schema: { type: string }
+        "206":
+          description: Requested byte range
+          content:
+            application/octet-stream:
+              schema: { type: string, format: binary }
+        "404":
+          description: Unknown or unavailable tutorial asset
+        "416":
+          description: Unsupported or unsatisfiable range
   /storage/uploads/request-url:
     post:
       operationId: requestUpload

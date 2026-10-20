@@ -4,8 +4,48 @@ import { RequestUploadBody,RequestUploadResponse } from "@workspace/api-zod";
 import { auth,userId } from "../middlewares/auth";
 import { ObjectStorageService } from "../lib/objectStorage";
 import { fail } from "../lib/marketplace";
+import { isTutorialAsset, parseTutorialRange } from "../lib/tutorial-media";
 
 const router:IRouter=Router(),storage=new ObjectStorageService();
+router.get("/storage/public-objects/tutorials/:filename", async (req, res) => {
+  const filename = String(req.params.filename);
+  if (!isTutorialAsset(filename)) { res.sendStatus(404); return; }
+  const file = await storage.searchPublicObject(`tutorials/${filename}`);
+  if (!file) { res.sendStatus(404); return; }
+  const [metadata] = await file.getMetadata();
+  const size = Number(metadata.size);
+  if (!Number.isSafeInteger(size) || size < 1 || size > 10 * 1024 * 1024) {
+    res.sendStatus(404); return;
+  }
+  const contentType = filename.endsWith(".mp4") ? "video/mp4"
+    : filename.endsWith(".webp") ? "image/webp" : "text/vtt; charset=utf-8";
+  res.set({
+    "Content-Type": contentType,
+    "Cache-Control": "public, max-age=3600",
+    "Accept-Ranges": "bytes",
+    "X-Content-Type-Options": "nosniff",
+  });
+  const range = parseTutorialRange(req.get("range"), size);
+  if (range === null) {
+    res.status(416).set("Content-Range", `bytes */${size}`).end(); return;
+  }
+  if (range) {
+    res.status(206).set({
+      "Content-Range": `bytes ${range.start}-${range.end}/${size}`,
+      "Content-Length": String(range.end - range.start + 1),
+    });
+  } else {
+    res.set("Content-Length", String(size));
+  }
+  if (req.method === "HEAD") { res.end(); return; }
+  const stream = file.createReadStream(range ? { ...range, validation: false } : {});
+  res.on("close", () => stream.destroy());
+  stream.on("error", () => {
+    req.log.error({ filename }, "Tutorial media stream failed");
+    if (!res.headersSent) res.status(502).end();
+    else res.destroy();
+  }).pipe(res);
+});
 router.post("/storage/uploads/request-url",auth,async(req,res)=>{
   const b=RequestUploadBody.parse(req.body),uid=userId(req)!;
   const count=await pool.query("SELECT count(*)::int n FROM kemis_uploads WHERE owner_id=$1 AND created_at>now()-interval '1 hour'",[uid]);

@@ -116,6 +116,7 @@ const en = {
   olderMessages:"Load earlier messages", more:"Show more", updatedPlan:"Review the latest handoff proposal before accepting.",
   closeDispute:"Close handoff dispute",closeDisputeConfirm:"Only after reviewing the report: close the disputed exchange and archive BOTH garments. This preserves the conversation and confirmations, does not relist either garment, and does not mark the exchange completed.",
   moreOwn:"Show more of my dresses",
+  howItWorks:"How it works",
 } as const;
 
 type Key = keyof typeof en;
@@ -232,6 +233,7 @@ const am: Record<Key, string> = {
   olderMessages:"የቆዩ መልእክቶችን አሳይ", more:"ተጨማሪ አሳይ", updatedPlan:"ከመቀበልዎ በፊት የቅርብ ጊዜውን የርክክብ ሀሳብ ይመልከቱ።",
   closeDispute:"የርክክብ ክርክርን ዝጋ",closeDisputeConfirm:"ሪፖርቱን ከመረመሩ በኋላ ብቻ፦ የተከራከረውን ልውውጥ ዝጋና ሁለቱንም ቀሚሶች ከልውውጥ አስወግድ። ውይይቱና ማረጋገጫዎቹ ይቀመጣሉ፤ ቀሚሶቹ እንደገና አይቀርቡም፤ ልውውጡም እንደተጠናቀቀ አይቆጠርም።",
   moreOwn:"ተጨማሪ የራሴን ቀሚሶች አሳይ",
+  howItWorks:"እንዴት ይሠራል",
 };
 
 const amEnums: Record<string, string> = {

@@ -9,6 +9,8 @@
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test:exchange": "node scripts/run-script.mjs exchange",
+    "test:tutorials": "node scripts/run-script.mjs tutorial-media",
+    "tutorials:upload": "node scripts/run-script.mjs upload-tutorials",
     "admin:grant": "node scripts/run-script.mjs admin",
     "test:cleanup": "node scripts/run-script.mjs cleanup"
   },

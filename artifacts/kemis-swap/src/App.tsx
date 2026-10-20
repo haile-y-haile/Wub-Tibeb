@@ -21,6 +21,7 @@ const Matches=lazy(()=>import("@/pages/matches"));
 const MatchDetail=lazy(()=>import("@/pages/match-detail"));
 const ProfilePage=lazy(()=>import("@/pages/misc").then(m=>({default:m.ProfilePage})));
 const NotificationsPage=lazy(()=>import("@/pages/misc").then(m=>({default:m.NotificationsPage})));
+const HowItWorks=lazy(()=>import("@/pages/how-it-works"));
 const ModerationPage=lazy(()=>import("@/pages/misc").then(m=>({default:m.ModerationPage})));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 15000, refetchOnWindowFocus: true, retry: 1 } } });
@@ -163,7 +164,7 @@ function AppRoutes() {
   const labels: Record<string, string> = {
     "/": brand, "/discover": t("discover"), "/wardrobe": t("yourDress"),
     "/matches": t("matches"), "/profile": t("profile"), "/notifications": t("alerts"),
-    "/moderation": t("moderation"), "/sign-in": t("signIn"), "/sign-up": t("getStarted"),
+    "/moderation": t("moderation"), "/how-it-works": t("howItWorks"), "/sign-in": t("signIn"), "/sign-up": t("getStarted"),
   };
   const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : brand);
   useEffect(() => {
@@ -186,6 +187,7 @@ function AppRoutes() {
           <RoutedErrorBoundary>
             <Suspense fallback={<div className="p-6 text-center" role="status">{t("loading")}</div>}><Switch>
               <Route path="/" component={HomeRedirect} />
+              <Route path="/how-it-works" component={HowItWorks} />
               <Route path="/discover" component={DiscoverP} />
               <Route path="/dress/:id" component={Dress} />
               <Route path="/wardrobe" component={WardrobeP} />

@@ -993,6 +993,23 @@ export const ModerateReportResponse = zod.object({
 })
 
 
+/**
+ * Public curated first-time-user tutorial video, poster or caption track. Supports HEAD and single byte ranges. Never exposes member uploads.
+ */
+export const getTutorialAssetPathFilenameRegExp = new RegExp('^(listing|matching|exchange)-(am|en)\\.(mp4|webp|vtt)$');
+
+
+export const GetTutorialAssetParams = zod.object({
+  "filename": zod.coerce.string().regex(getTutorialAssetPathFilenameRegExp)
+})
+
+export const GetTutorialAssetHeader = zod.object({
+  "Range": zod.string().optional()
+})
+
+export const GetTutorialAssetResponse = zod.unknown()
+
+
 export const requestUploadBodyNameMax = 200;
 
 export const requestUploadBodySizeMax = 2097152;

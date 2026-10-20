@@ -118,3 +118,20 @@ Browser-test fixtures can be removed with `pnpm --filter @workspace/api-server t
 The mobile browser check used two independent 390×844 contexts with supported programmatic Clerk test identities. It verified profile setup, UI photo uploads and listings, one-way interest without a match, exact reciprocal matching, persistent two-way chat, acceptance of the reviewed proposal, reservation, separate handoff confirmations, completed history and exclusion of both completed garments from discovery. It also checked Amharic brand/tagline, match labels/statuses, notifications and dates. A targeted follow-up verified recovery after a development module reload and all 209 test messages across the 200-message page boundary, with no duplicates.
 
 Public API responses and unsigned private-API rejection are checked separately. **These checks do not verify real email delivery, production credentials/data, installation on a physical Android phone, or physical-device performance.** Complete those launch checks before inviting public users; programmatic test sign-in is not proof of delivery of a real verification email.
+
+## First-time-user tutorial clips
+
+The public `/how-it-works` page explains listing a kemis, garment-specific matching, and completing an exchange. Tutorial examples are not live member transactions. Language follows the website's Amharic/English setting.
+
+Tutorial MP4s, WebP posters and WebVTT captions are durable **public App Storage assets**, separate from private member uploads. The media endpoint only allows the curated lesson/language filenames and supports byte-range requests for Android video playback and seeking. It never exposes arbitrary storage objects.
+
+After rendering/regenerating clips into `generated-artifacts/how-to/`, upload all six lesson/language sets using:
+
+```sh
+pnpm --filter @workspace/api-server tutorials:upload
+pnpm --filter @workspace/api-server test:tutorials
+```
+
+Each set contains matching `.mp4`, `.webp` and `.vtt` files named `listing-am`, `listing-en`, `matching-am`, `matching-en`, `exchange-am` or `exchange-en`. The upload command validates the complete set before uploading and uses the existing App Storage configuration without printing credentials. Generated recordings and intermediate frames are excluded from Git and deployment bundles. When listing labels or exchange steps change, regenerate the affected clips and captions to keep the instructions accurate.
+
+Publish updated application code to make these guides available on the shared live site; media uploaded to App Storage is not a substitute for publishing the new page and serving route.

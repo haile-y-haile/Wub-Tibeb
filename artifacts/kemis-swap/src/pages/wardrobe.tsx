@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Link } from "wouter";
+import { Pencil, PlayCircle, Plus, Trash2 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useDeleteListing, useGetListings, getGetListingsQueryKey, type Listing } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,9 @@ export default function Wardrobe() {
       <PageHeader kicker={t("tagline")} title={t("wardrobe")} action={
         <Button className="h-11 rounded-full" onClick={() => setEditing("new")} data-testid="button-new-listing"><Plus className="mr-1 h-4 w-4" />{t("addDress")}</Button>
       } />
+      <Link href="/how-it-works?lesson=listing" className="mx-4 mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary underline underline-offset-4" data-testid="link-wardrobe-how">
+        <PlayCircle className="h-4 w-4" />{t("howItWorks")}
+      </Link>
       {q.isLoading ? <GridSkeleton n={4} /> : q.error ? <ErrorState onRetry={() => q.refetch()} /> : !q.data?.length ? (
         <EmptyState title={t("wardrobeEmpty")} sub={t("wardrobeEmptySub")} action={<Button onClick={() => setEditing("new")} data-testid="button-empty-add">{t("addDress")}</Button>} />
       ) : (

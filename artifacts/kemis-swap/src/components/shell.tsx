@@ -1,7 +1,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { Show, useClerk } from "@clerk/react";
-import { Bell, Compass, Download, HeartHandshake, LogOut, Shield, Shirt, UserRound, WifiOff } from "lucide-react";
+import { Bell, CircleHelp, Compass, Download, HeartHandshake, LogOut, Shield, Shirt, UserRound, WifiOff } from "lucide-react";
 import { useGetNotifications, useGetProfile, useSaveProfile, getGetNotificationsQueryKey, getGetProfileQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n, type Lang } from "@/lib/i18n";
@@ -118,6 +118,9 @@ export function Shell({ children }: { children: ReactNode }) {
                 <Download className="h-4 w-4" />
               </button>
             )}
+            <Link href="/how-it-works" className="grid h-10 w-10 place-items-center rounded-full border border-border bg-card" aria-label={t("howItWorks")} title={t("howItWorks")} data-testid="link-header-how">
+              <CircleHelp className="h-[18px] w-[18px] text-primary" />
+            </Link>
             <LangToggle />
             <Show when="signed-in">
               <SignedInExtras />
@@ -135,6 +138,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <Show when="signed-out"><main className="mx-auto max-w-5xl pb-10">{children}</main></Show>
       <footer className="mx-auto hidden max-w-5xl items-center justify-between gap-4 border-t border-border/70 px-4 py-6 text-xs text-muted-foreground md:flex" data-testid="footer-brand">
         <span className="flex items-center gap-2"><img src={`${basePath}/logo.svg`} alt="" className="h-5 w-5" /><span className="wordmark text-sm text-primary">{t("appName")}</span>{lang==="en" && <span lang="am" className="wordmark-am">ውብ ጥበብ</span>}</span>
+        <Link href="/how-it-works" className="font-semibold text-primary underline underline-offset-4" data-testid="link-footer-how">{t("howItWorks")}</Link>
         <span className="font-display italic">{t("tagline")}</span>
       </footer>
       <Show when="signed-in">

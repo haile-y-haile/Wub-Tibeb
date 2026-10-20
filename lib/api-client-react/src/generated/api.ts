@@ -1629,6 +1629,80 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
       return useMutation(getModerateReportMutationOptions(options));
     }
 
+export const getGetTutorialAssetUrl = (filename: string,) => {
+
+
+
+
+  return `/api/storage/public-objects/tutorials/${filename}`
+}
+
+/**
+ * Public curated first-time-user tutorial video, poster or caption track. Supports HEAD and single byte ranges. Never exposes member uploads.
+ */
+export const getTutorialAsset = async (filename: string, options?: Parameters<typeof customFetch>[1]): Promise<Blob | string> => {
+
+  return customFetch<Blob | string>(getGetTutorialAssetUrl(filename),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetTutorialAssetQueryKey = (filename: string,) => {
+    return [
+    `/api/storage/public-objects/tutorials/${filename}`
+    ] as const;
+    }
+
+
+export const getGetTutorialAssetQueryOptions = <TData = Awaited<ReturnType<typeof getTutorialAsset>>, TError = ErrorType<void>>(filename: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTutorialAsset>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetTutorialAssetQueryKey(filename);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getTutorialAsset>>> = ({ signal }) => getTutorialAsset(filename, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: filename !== null && filename !== undefined, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getTutorialAsset>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetTutorialAssetQueryResult = NonNullable<Awaited<ReturnType<typeof getTutorialAsset>>>
+export type GetTutorialAssetQueryError = ErrorType<void>
+
+
+
+export function useGetTutorialAsset<TData = Awaited<ReturnType<typeof getTutorialAsset>>, TError = ErrorType<void>>(
+ filename: string, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getTutorialAsset>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetTutorialAssetQueryOptions(filename,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
 export const getRequestUploadUrl = () => {
 
 
