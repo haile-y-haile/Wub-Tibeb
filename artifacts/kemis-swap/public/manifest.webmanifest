@@ -1,7 +1,9 @@
 {
-  "name": "Habesha Kemis Swap",
-  "short_name": "Kemis Swap",
-  "description": "Swap holiday Habesha kemis with women near you.",
+  "id": "/",
+  "name": "Wub Tibeb · ውብ ጥበብ",
+  "short_name": "Wub Tibeb",
+  "description": "Wear. Share. Repeat. A Habesha kemis-for-kemis exchange community in Ethiopia.",
+  "lang": "en",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

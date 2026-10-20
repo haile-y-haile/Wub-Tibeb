@@ -434,7 +434,7 @@
   }
 }
 
-/* ---------- Kemis Swap: tibeb system ---------- */
+/* ---------- Wub Tibeb: tibeb system ---------- */
 :root{ --gold: 40 58% 52%; --forest: 153 45% 21%; --ivory: 42 45% 95%; --clay: 6 55% 45%; }
 html{ -webkit-tap-highlight-color: transparent; }
 body{ background-color: hsl(var(--background)); }
@@ -457,3 +457,10 @@ body::before{ content:""; position:fixed; inset:0; pointer-events:none; z-index:
 @media (prefers-reduced-motion: reduce){ .rise{ animation:none; } }
 .cl-formFieldInput::placeholder{ color: hsl(150 10% 45%); opacity:1; }
 .no-scrollbar::-webkit-scrollbar{ display:none; } .no-scrollbar{ scrollbar-width:none; }
+
+/* ---------- Wub Tibeb: Ethiopic script (local subset, no network) ---------- */
+@font-face{ font-family:"Wub Ethiopic"; src:url("/fonts/noto-sans-ethiopic-subset.woff2") format("woff2"); font-weight:400 700; font-style:normal; font-display:swap; unicode-range:U+1200-139F,U+2D80-2DDF,U+AB00-AB2F; }
+:root{ --app-font-sans: 'Figtree', 'Wub Ethiopic', 'Noto Sans Ethiopic', system-ui, sans-serif; --app-font-serif: 'Fraunces', 'Wub Ethiopic', 'Noto Serif Ethiopic', Georgia, serif; }
+:lang(am){ font-family:'Wub Ethiopic','Noto Sans Ethiopic','Abyssinica SIL',system-ui,sans-serif; line-height:1.65; letter-spacing:normal !important; text-transform:none !important; }
+.wordmark{ font-family: var(--app-font-serif); font-weight:600; letter-spacing:-0.01em; line-height:1; }
+.wordmark-am{ font-family:'Wub Ethiopic','Noto Sans Ethiopic',system-ui,sans-serif; font-weight:600; line-height:1.4; }

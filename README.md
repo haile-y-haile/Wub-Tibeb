@@ -1,6 +1,10 @@
-# Habesha Kemis Swap
+# Wub Tibeb · ውብ ጥበብ
 
-A working mobile-first web MVP for exchanging **Habesha kemis for Habesha kemis** in Ethiopia. The initial experience uses Addis Ababa neighborhoods. Working title, pilot geography, and handoff policy can evolve; this is not a general clothing marketplace.
+**Wear. Share. Repeat.**
+
+A working mobile-first web MVP for exchanging **Habesha kemis for Habesha kemis** in Ethiopia. The initial experience uses Addis Ababa neighborhoods. Pilot geography and handoff policy can evolve; this is not a general clothing marketplace.
+
+The public brand is **Wub Tibeb**, with the Amharic name **ውብ ጥበብ** and exact tagline **Wear. Share. Repeat.** Naming is not a claim of verified trademark or domain availability. Internal package names, database identifiers and routes remain unchanged to preserve existing accounts, listings and exchanges.
 
 ## Included milestones
 
@@ -12,7 +16,7 @@ No payments. No fake SMS OTP. Authentication currently uses supported Clerk emai
 
 ## Run
 
-Use the managed API Server and Habesha Kemis Swap workflows in Replit. They supply the required routing and ports.
+Use the managed API Server and Wub Tibeb app workflows in Replit. They supply the required routing and ports. The app's internal workflow identifier remains `artifacts/kemis-swap: web`.
 
 ```sh
 pnpm install --frozen-lockfile

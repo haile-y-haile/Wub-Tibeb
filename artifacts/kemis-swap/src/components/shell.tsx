@@ -48,7 +48,7 @@ export function LangToggle() {
       {(["en", "am"] as const).map((l) => (
         <button key={l} type="button" onClick={() => pick(l)} aria-pressed={lang === l} data-testid={`button-lang-${l}`}
           className={cn("min-h-8 rounded-full px-3 transition-colors", lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
-          {l === "en" ? "EN" : "አማ"}
+          {l === "en" ? "EN" : <span lang="am">አማ</span>}
         </button>
       ))}
     </div>
@@ -94,9 +94,12 @@ export function Shell({ children }: { children: ReactNode }) {
       )}
       <header className="sticky top-0 z-30 border-b border-border/70 bg-background/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-5xl items-center gap-2 px-4">
-          <Link href="/" className="flex items-center gap-2" data-testid="link-home">
+          <Link href="/" className="flex items-center gap-2" data-testid="link-home" aria-label="Wub Tibeb, ውብ ጥበብ">
             <img src={`${basePath}/logo.svg`} alt="" className="h-8 w-8" />
-            <span className="font-display text-lg font-semibold text-primary">{t("appName")}</span>
+            <span className="flex flex-col">
+              <span className="wordmark text-[17px] text-primary">Wub Tibeb</span>
+              <span lang="am" className="wordmark-am text-[11px] text-muted-foreground">ውብ ጥበብ</span>
+            </span>
           </Link>
           <Show when="signed-in">
             <nav className="ml-6 hidden gap-1 md:flex" aria-label="Main">
@@ -129,6 +132,10 @@ export function Shell({ children }: { children: ReactNode }) {
       </header>
       <Show when="signed-in"><main className="mx-auto max-w-5xl safe-bottom md:pb-10">{children}</main></Show>
       <Show when="signed-out"><main className="mx-auto max-w-5xl pb-10">{children}</main></Show>
+      <footer className="mx-auto hidden max-w-5xl items-center justify-between gap-4 border-t border-border/70 px-4 py-6 text-xs text-muted-foreground md:flex" data-testid="footer-brand">
+        <span className="flex items-center gap-2"><img src={`${basePath}/logo.svg`} alt="" className="h-5 w-5" /><span className="wordmark text-sm text-primary">Wub Tibeb</span><span lang="am" className="wordmark-am">ውብ ጥበብ</span></span>
+        <span className="font-display italic">Wear. Share. Repeat.</span>
+      </footer>
       <Show when="signed-in">
         <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden" aria-label="Main" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
           <div className="tibeb-thin" aria-hidden />

@@ -16,9 +16,15 @@ export default function Home() {
       <section className="relative overflow-hidden px-4 pb-8 pt-6 md:pt-12">
         <div className="grid items-center gap-6 md:grid-cols-[1.1fr_1fr]">
           <div className="rise">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent">{t("tagline")}</p>
+            <div className="flex items-baseline gap-3" data-testid="text-brand">
+              <span className="wordmark text-xl text-primary">Wub Tibeb</span>
+              <span lang="am" className="wordmark-am text-base text-muted-foreground">ውብ ጥበብ</span>
+            </div>
+            <p lang="en" className="mt-1 font-display text-lg italic text-[#795b25]" data-testid="text-tagline">Wear. Share. Repeat.</p>
+            <div className="tibeb-thin mt-3 w-24 rounded-full" aria-hidden />
             <h1 className="mt-2 font-display text-[2.6rem] font-semibold leading-[1.02] text-primary md:text-6xl" data-testid="text-hero">{t("heroLine")}</h1>
             <p className="mt-4 max-w-md text-[15px] leading-relaxed text-muted-foreground">{t("heroSub")}</p>
+            <p className="mt-2 max-w-md text-sm text-muted-foreground/90">{t("taglineSupport")}</p>
             <div className="mt-6 flex flex-wrap gap-3">
               <Link href="/sign-up" className="inline-flex h-12 items-center gap-2 rounded-full bg-primary px-6 font-semibold text-primary-foreground" data-testid="link-signup">
                 {t("getStarted")} <ArrowRight className="h-4 w-4" />

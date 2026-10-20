@@ -3,11 +3,12 @@ import { createContext, useContext, useState, useCallback, type ReactNode } from
 export type Lang = "en" | "am";
 
 const en = {
-  appName: "Kemis Swap",
-  tagline: "Give a cherished kemis another holiday.",
+  appName: "Wub Tibeb",
+  tagline: "Wear. Share. Repeat.",
+  taglineSupport: "Give a cherished kemis another holiday.",
   heroLine: "Every kemis deserves more than one Timket.",
   heroSub: "Swap holiday Habesha kemis with women near you. No money, no middlemen — a dress for a dress.",
-  getStarted: "Join the swap",
+  getStarted: "Join Wub Tibeb",
   signIn: "Sign in",
   signOut: "Sign out",
   discover: "Discover",
@@ -76,7 +77,7 @@ const en = {
   privateMeasure: "My measurements (private)",
   privateNote: "Only used to suggest dresses that fit you. Never shown to other members.",
   generalHood: "General area only, e.g. Bole, Piassa, Kazanchis.",
-  setupTitle: "Set up your profile",
+  setupTitle: "Welcome to Wub Tibeb",
   setupSub: "A name and neighborhood so swap partners know who they are meeting.",
   saved: "Saved",
   error: "Something went wrong.",
@@ -109,8 +110,9 @@ const en = {
 type Key = keyof typeof en;
 
 const am: Record<Key, string> = {
-  appName: "ቀሚስ ስዋፕ",
-  tagline: "የተወደደ ቀሚስዎን ሌላ በዓል ያሳዩት።",
+  appName: "ውብ ጥበብ",
+  tagline: "Wear. Share. Repeat.",
+  taglineSupport: "ይልበሱ። ያጋሩ። ይድገሙ። የተወደደ ቀሚስዎን ሌላ በዓል ያሳዩት።",
   heroLine: "እያንዳንዱ ቀሚስ ከአንድ ጥምቀት በላይ ይገባዋል።",
   heroSub: "የበዓል የሀበሻ ቀሚስዎን በአቅራቢያዎ ካሉ ሴቶች ጋር ይለዋወጡ። ገንዘብ የለም፣ ደላላ የለም — ቀሚስ ለቀሚስ።",
   getStarted: "ይቀላቀሉ",
@@ -182,7 +184,7 @@ const am: Record<Key, string> = {
   privateMeasure: "የእኔ ልኬቶች (የግል)",
   privateNote: "የሚሆንዎትን ቀሚስ ለመጠቆም ብቻ። ለሌሎች አይታይም።",
   generalHood: "አጠቃላይ አካባቢ ብቻ፣ ለምሳሌ ቦሌ፣ ፒያሳ፣ ቃዛንቺስ።",
-  setupTitle: "መገለጫዎን ያዘጋጁ",
+  setupTitle: "እንኳን ወደ ውብ ጥበብ በደህና መጡ",
   setupSub: "የልውውጥ አጋሮች ማንን እንደሚያገኙ እንዲያውቁ ስምና ሰፈር።",
   saved: "ተቀምጧል",
   error: "ችግር ተፈጥሯል።",
@@ -223,7 +225,7 @@ type Ctx = { lang: Lang; setLang: (l: Lang) => void; t: (k: Key) => string; e: (
 const I18n = createContext<Ctx | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [lang, setLangState] = useState<Lang>(() => (localStorage.getItem("kemis-lang") === "am" ? "am" : "en"));
+  const [lang, setLangState] = useState<Lang>(() => { const l: Lang = localStorage.getItem("kemis-lang") === "am" ? "am" : "en"; document.documentElement.lang = l; return l; });
   const setLang = useCallback((l: Lang) => {
     localStorage.setItem("kemis-lang", l);
     document.documentElement.lang = l;

@@ -12,7 +12,7 @@ export function PageHeader({ title, kicker, action }: { title: string; kicker?: 
   return (
     <header className="flex items-end justify-between gap-3 px-4 pt-5 pb-4 rise">
       <div>
-        {kicker && <p className="text-[11px] uppercase tracking-[0.18em] text-accent font-semibold">{kicker}</p>}
+        {kicker && <p lang="en" className="text-[11px] uppercase tracking-[0.18em] text-accent font-semibold">{kicker}</p>}
         <h1 className="font-display text-3xl font-semibold leading-tight text-primary" data-testid="text-page-title">{title}</h1>
       </div>
       {action}

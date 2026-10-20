@@ -19,6 +19,8 @@ import Matches from "@/pages/matches";
 import MatchDetail from "@/pages/match-detail";
 import { ModerationPage, NotificationsPage, ProfilePage } from "@/pages/misc";
 
+const BRAND = "Wub Tibeb · ውብ ጥበብ";
+
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 15000, refetchOnWindowFocus: true, retry: 1 } } });
 
 const clerkPubKey = publishableKeyFromHost(
@@ -57,7 +59,7 @@ const clerkAppearance = {
     colorInput: "#fffdf7",
     colorInputForeground: "#173a2b",
     colorNeutral: "#5c5340",
-    fontFamily: "'Figtree', 'Noto Sans Ethiopic', system-ui, sans-serif",
+    fontFamily: "'Figtree', 'Wub Ethiopic', 'Noto Sans Ethiopic', system-ui, sans-serif",
     borderRadius: "0.85rem",
   },
   elements: {
@@ -93,8 +95,16 @@ function AuthFrame({ children }: { children: ReactNode }) {
   const { t } = useI18n();
   return (
     <div className="flex min-h-[100dvh] flex-col items-center justify-center gap-4 bg-background px-4 py-8">
-      <div className="tibeb w-40 rounded-full" aria-hidden />
-      <p className="max-w-xs text-center font-display text-lg text-primary">{t("heroLine")}</p>
+      <div className="flex items-center gap-3">
+        <img src={`${basePath}/logo.svg`} alt="" className="h-11 w-11" />
+        <div className="text-left">
+          <div className="wordmark text-2xl text-primary">Wub Tibeb</div>
+          <div lang="am" className="wordmark-am text-sm text-muted-foreground">ውብ ጥበብ</div>
+        </div>
+      </div>
+      <p className="font-display text-base italic text-accent-foreground/80">Wear. Share. Repeat.</p>
+      <div className="tibeb-thin w-32 rounded-full" aria-hidden />
+      <p className="max-w-xs text-center text-sm text-muted-foreground">{t("heroLine")}</p>
       {children}
     </div>
   );
@@ -147,17 +157,19 @@ function AppRoutes() {
   const [location] = useLocation();
   const { t } = useI18n();
   const labels: Record<string, string> = {
-    "/": "Habesha Kemis Swap", "/discover": t("discover"), "/wardrobe": t("yourDress"),
+    "/": BRAND, "/discover": t("discover"), "/wardrobe": t("yourDress"),
     "/matches": t("matches"), "/profile": t("profile"), "/notifications": t("alerts"),
     "/moderation": t("moderation"), "/sign-in": t("signIn"), "/sign-up": t("getStarted"),
   };
-  const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : "Habesha Kemis Swap");
+  const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : BRAND);
   useEffect(() => {
-    document.title = title === "Habesha Kemis Swap" ? title : `${title} · Habesha Kemis Swap`;
-    const description = `${title} — Habesha kemis-to-kemis exchanges in Ethiopia.`;
+    document.title = title === BRAND ? `${BRAND} — Wear. Share. Repeat.` : `${title} · Wub Tibeb`;
+    const description = `Wear. Share. Repeat. ${title === BRAND ? "Wub Tibeb (ውብ ጥበብ)" : title} — kemis-for-kemis exchanges in Ethiopia.`;
     document.querySelector('meta[name="description"]')?.setAttribute("content", description);
     document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
     document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
+    document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", document.title);
+    document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
   }, [title]);
   return (
     <Switch>
@@ -197,8 +209,8 @@ function ClerkProviderWithRoutes() {
       signInUrl={`${basePath}/sign-in`}
       signUpUrl={`${basePath}/sign-up`}
       localization={{
-        signIn: { start: { title: am ? "እንኳን ደህና መጡ" : "Welcome back", subtitle: am ? "ወደ ቀሚስ ስዋፕ ይግቡ" : "Sign in to keep swapping kemis" } },
-        signUp: { start: { title: am ? "መለያ ይፍጠሩ" : "Join Kemis Swap", subtitle: am ? "ቀሚስ ለቀሚስ መለዋወጥ ይጀምሩ" : "A dress for a dress, among neighbors" } },
+        signIn: { start: { title: am ? "እንኳን ደህና መጡ" : "Welcome back", subtitle: am ? "ወደ ውብ ጥበብ ይግቡ" : "Sign in to Wub Tibeb" } },
+        signUp: { start: { title: am ? "መለያ ይፍጠሩ" : "Join Wub Tibeb", subtitle: am ? "Wear. Share. Repeat. · ቀሚስ ለቀሚስ" : "Wear. Share. Repeat." } },
       }}
       routerPush={(to) => setLocation(stripBase(to))}
       routerReplace={(to) => setLocation(stripBase(to), { replace: true })}

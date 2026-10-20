@@ -1,6 +1,6 @@
 // App-shell offline notice only. Never caches API, auth, or messages.
-const CACHE = "kemis-shell-v1";
-const SHELL = ["offline.html", "logo.svg", "icon-192.png"];
+const CACHE = "kemis-shell-v2-wubtibeb";
+const SHELL = ["offline.html", "logo.svg", "icon-192.png", "fonts/noto-sans-ethiopic-subset.woff2"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL.map((p) => new URL(p, self.registration.scope).href))));
   self.skipWaiting();
