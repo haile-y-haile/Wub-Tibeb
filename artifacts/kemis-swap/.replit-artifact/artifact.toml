@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Habesha Kemis Swap"
+description = "An Ethiopia-first mobile marketplace for reciprocal Habesha kemis garment exchanges, with detailed measurements, private chat and bilateral swap confirmation."
+version = "1.0.0"
+id = "artifacts/kemis-swap"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 25077
+
+[services.development]
+run = "pnpm --filter @workspace/kemis-swap run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/kemis-swap", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/kemis-swap/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25077"
+BASE_PATH = "/"

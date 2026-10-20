@@ -1,36 +1,416 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 1.0.0
 servers:
   - url: /api
-    description: Base API path
-tags:
-  - name: health
-    description: Health operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
-      tags: [health]
-      summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
           content:
             application/json:
+              schema: { $ref: "#/components/schemas/HealthStatus" }
+  /profile:
+    get:
+      operationId: getProfile
+      responses:
+        "200":
+          description: Private profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+    put:
+      operationId: saveProfile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileInput" }
+      responses:
+        "200":
+          description: Saved
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Profile" }
+  /listings:
+    get:
+      operationId: getListings
+      parameters:
+        - { name: q, in: query, schema: { type: string } }
+        - { name: occasion, in: query, schema: { type: string } }
+        - { name: color, in: query, schema: { type: string } }
+        - { name: condition, in: query, schema: { type: string } }
+        - { name: neighborhood, in: query, schema: { type: string } }
+        - { name: fabric, in: query, schema: { type: string } }
+        - { name: mine, in: query, schema: { type: boolean } }
+        - { name: compatible, in: query, schema: { type: boolean } }
+      responses:
+        "200":
+          description: Dresses
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Listing" } }
+    post:
+      operationId: createListing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ListingInput" }
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Listing" }
+  /listings/{id}:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getListing
+      responses:
+        "200":
+          description: Dress
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Listing" }
+    put:
+      operationId: updateListing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ListingInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Listing" }
+    delete:
+      operationId: deleteListing
+      responses:
+        "200":
+          description: Archived
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Success" }
+  /swipes:
+    post:
+      operationId: swipeDress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/SwipeInput" }
+      responses:
+        "200":
+          description: Swipe recorded
+          content:
+            application/json:
               schema:
-                $ref: "#/components/schemas/HealthStatus"
+                type: object
+                required: [matched]
+                properties:
+                  matched: { type: boolean }
+                  matchId: { type: string }
+  /matches:
+    get:
+      operationId: getMatches
+      responses:
+        "200":
+          description: Matches including history
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Match" } }
+  /matches/{id}/messages:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    get:
+      operationId: getMessages
+      responses:
+        "200":
+          description: Private messages
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Message" } }
+    post:
+      operationId: sendMessage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MessageInput" }
+      responses:
+        "201":
+          description: Sent
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+  /matches/{id}/exchange:
+    parameters:
+      - { name: id, in: path, required: true, schema: { type: string } }
+    post:
+      operationId: updateExchange
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ExchangeInput" }
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Match" }
+  /reports:
+    post:
+      operationId: createReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReportInput" }
+      responses:
+        "201":
+          description: Reported
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Success" }
+  /blocks:
+    post:
+      operationId: blockUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BlockInput" }
+      responses:
+        "200":
+          description: Blocked
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Success" }
+  /notifications:
+    get:
+      operationId: getNotifications
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Notification" } }
+    post:
+      operationId: readNotifications
+      responses:
+        "200":
+          description: Read
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Success" }
+  /community:
+    get:
+      operationId: getCommunity
+      responses:
+        "200":
+          description: Live counts
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [dresses, swaps, neighborhoods]
+                properties:
+                  dresses: { type: integer }
+                  swaps: { type: integer }
+                  neighborhoods: { type: integer }
+  /moderation:
+    get:
+      operationId: getModeration
+      responses:
+        "200":
+          description: Admin reports
+          content:
+            application/json:
+              schema: { type: array, items: { $ref: "#/components/schemas/Report" } }
+    post:
+      operationId: moderateReport
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ModerationInput" }
+      responses:
+        "200":
+          description: Moderated
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Success" }
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUpload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UploadInput" }
+      responses:
+        "200":
+          description: Signed upload
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [uploadURL, objectPath]
+                properties:
+                  uploadURL: { type: string }
+                  objectPath: { type: string }
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
-        status:
-          type: string
-      required:
-        - status
-
+        status: { type: string }
+    Success:
+      type: object
+      required: [ok]
+      properties:
+        ok: { type: boolean }
+    Measurements:
+      type: object
+      required: [bust, waist, hips, shoulder, length, sleeves]
+      properties:
+        bust: { type: number, minimum: 20, maximum: 250 }
+        waist: { type: number, minimum: 20, maximum: 250 }
+        hips: { type: number, minimum: 20, maximum: 250 }
+        shoulder: { type: number, minimum: 10, maximum: 100 }
+        length: { type: number, minimum: 30, maximum: 250 }
+        sleeves: { type: number, minimum: 0, maximum: 120 }
+    ProfileInput:
+      type: object
+      required: [name, neighborhood, language]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 80 }
+        neighborhood: { type: string, minLength: 1, maxLength: 80 }
+        language: { type: string, enum: [en, am] }
+        measurements: { $ref: "#/components/schemas/Measurements" }
+    Profile:
+      allOf:
+        - { $ref: "#/components/schemas/ProfileInput" }
+        - type: object
+          required: [id, role]
+          properties:
+            id: { type: string }
+            role: { type: string }
+    ListingInput:
+      type: object
+      required: [title, description, photos, condition, color, fabric, embroidery, occasion, timesWorn, measurements]
+      properties:
+        title: { type: string, minLength: 3, maxLength: 100 }
+        description: { type: string, minLength: 10, maxLength: 2000 }
+        photos: { type: array, minItems: 1, maxItems: 6, items: { type: string } }
+        condition: { type: string, enum: [Like new, Excellent, Good, Fair] }
+        color: { type: string, minLength: 1, maxLength: 40 }
+        fabric: { type: string, minLength: 1, maxLength: 60 }
+        embroidery: { type: string, minLength: 1, maxLength: 120 }
+        occasion: { type: string, enum: [Timket, Meskel, Enkutatash, Fasika, Genna, Wedding, Other holiday] }
+        timesWorn: { type: integer, minimum: 0, maximum: 1000 }
+        measurements: { $ref: "#/components/schemas/Measurements" }
+    Listing:
+      allOf:
+        - { $ref: "#/components/schemas/ListingInput" }
+        - type: object
+          required: [id, ownerId, ownerName, neighborhood, status, demo, createdAt]
+          properties:
+            id: { type: string }
+            ownerId: { type: string }
+            ownerName: { type: string }
+            neighborhood: { type: string }
+            status: { type: string }
+            demo: { type: boolean }
+            createdAt: { type: string }
+            compatible: { type: boolean }
+    SwipeInput:
+      type: object
+      required: [targetId, direction]
+      properties:
+        targetId: { type: string }
+        offeredId: { type: string }
+        direction: { type: string, enum: [like, pass] }
+    Match:
+      type: object
+      required: [id, dressA, dressB, userA, userB, status, acceptedBy, completedBy, proposal, createdAt]
+      properties:
+        id: { type: string }
+        dressA: { $ref: "#/components/schemas/Listing" }
+        dressB: { $ref: "#/components/schemas/Listing" }
+        userA: { type: string }
+        userB: { type: string }
+        status: { type: string }
+        acceptedBy: { type: array, items: { type: string } }
+        completedBy: { type: array, items: { type: string } }
+        proposal: { type: string }
+        createdAt: { type: string }
+    MessageInput:
+      type: object
+      required: [text]
+      properties:
+        text: { type: string, minLength: 1, maxLength: 2000 }
+    Message:
+      type: object
+      required: [id, senderId, text, createdAt]
+      properties:
+        id: { type: string }
+        senderId: { type: string }
+        text: { type: string }
+        createdAt: { type: string }
+    ExchangeInput:
+      type: object
+      required: [action]
+      properties:
+        action: { type: string, enum: [propose, accept, complete, cancel] }
+        proposal: { type: string, maxLength: 500 }
+    ReportInput:
+      type: object
+      required: [listingId, reason]
+      properties:
+        listingId: { type: string }
+        reason: { type: string, minLength: 5, maxLength: 1000 }
+    BlockInput:
+      type: object
+      required: [userId]
+      properties:
+        userId: { type: string }
+    Notification:
+      type: object
+      required: [id, text, read, createdAt]
+      properties:
+        id: { type: string }
+        text: { type: string }
+        read: { type: boolean }
+        createdAt: { type: string }
+    Report:
+      type: object
+      required: [id, listingId, reason, status]
+      properties:
+        id: { type: string }
+        listingId: { type: string }
+        reason: { type: string }
+        status: { type: string }
+    ModerationInput:
+      type: object
+      required: [reportId, action]
+      properties:
+        reportId: { type: string }
+        action: { type: string, enum: [dismiss, hide] }
+    UploadInput:
+      type: object
+      required: [name, size, contentType]
+      properties:
+        name: { type: string, maxLength: 200 }
+        size: { type: integer, minimum: 1, maximum: 2097152 }
+        contentType: { type: string, enum: [image/jpeg, image/webp, image/png] }

@@ -1,45 +1,39 @@
-# [Project name]
+# Habesha Kemis Swap
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Ethiopia-first, mobile-first Habesha kemis-to-kemis exchange marketplace. See README.md for operating instructions, exchange rules, privacy and verification boundaries.
 
-## Run & Operate
+## Founder-confirmed scope
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- "locally in Ethiopia first"
+- "only for ... the first iteration ... Habesha kemis"
+- Holiday rewear, detailed size listings, reciprocal garment-specific swipe swaps.
+- "most people in Ethiopia, especially in Addis Ababa, they have low-cost phone, which is Android"
+- Initial request names Addis Ababa and English/Amharic; do not assume Addis-only, Amharic-first, phone OTP or a mandatory public-handoff policy are permanent founder decisions.
+- No payments or fake SMS OTP. Use supported authentication until a real Ethiopia-compatible SMS provider is configured.
 
-## Stack
+## Run and verify
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Managed workflows: `artifacts/api-server: API Server`, `artifacts/kemis-swap: web`.
+- `pnpm run typecheck`
+- `pnpm --filter @workspace/api-server test:exchange`
+- `pnpm --filter @workspace/api-spec run codegen` after OpenAPI changes.
+- `pnpm --filter @workspace/db run push` for development schema changes only.
+- Managed production database changes go through Publish, not startup migrations.
 
-## Where things live
+## Decisions
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- Clerk owns authentication; no local passwords or simulated test-session login.
+- Private preferred garment measurements stay in profiles; public garment measurements belong on listings.
+- Photos live in durable App Storage; PostgreSQL contains paths and metadata only.
+- Reciprocal interest must identify the same two garments. Never simplify to profile-level likes.
+- Both users separately accept and separately complete. Serialize garment state changes to prevent competing reservations.
+- Demo listings are explicitly labeled and non-exchangeable; never fake messages or matching behavior.
+- The service worker must never cache private API/auth/chat data.
 
-## Architecture decisions
+## Source of truth
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- API contract: `lib/api-spec/openapi.yaml`; generated client and validation in `lib/api-client-react` and `lib/api-zod`.
+- Database: `lib/db/src/schema/marketplace.ts`; initial development migration: `lib/db/migrations/0001_kemis.sql`.
+- Core exchange rules: `artifacts/api-server/src/lib/marketplace.ts`.
+- Frontend: `artifacts/kemis-swap/src`; language strings: `src/lib/i18n.tsx`.
+- Moderator bootstrap and test scope: README.md.
