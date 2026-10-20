@@ -63,4 +63,15 @@ const copyJs=ts.transpileModule(fs.readFileSync(root+"localized-copy.ts","utf8")
 const copyRuntime=await import("data:text/javascript;base64,"+Buffer.from(copyJs).toString("base64"));
 assert.equal(copyRuntime.systemText("toString","am","ስህተት"),"ስህተት");
 assert.equal(copyRuntime.ownCopy({},"constructor"),undefined,"Member text must not resolve inherited Object properties");
+const preferenceJs=ts.transpileModule(fs.readFileSync(root+"language-preference.ts","utf8"),{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.ESNext}}).outputText;
+const preference=await import("data:text/javascript;base64,"+Buffer.from(preferenceJs).toString("base64"));
+assert.equal(preference.initialLanguage("",null),"am","First visit starts in Amharic");
+assert.equal(preference.initialLanguage("","invalid"),"am");
+assert.equal(preference.initialLanguage("","en"),"en","Remember an explicit English choice");
+assert.equal(preference.initialLanguage("","am"),"am");
+assert.equal(preference.initialLanguage("?lang=en","am"),"en");
+assert.equal(preference.initialLanguage("?lang=am","en"),"am");
+assert.equal(preference.initialLanguage("?lang=invalid",null),"am");
+assert.deepEqual([...preference.LANGUAGE_ORDER],["am","en"],"Amharic is left of English");
 console.log(`PASS: ${Object.keys(am).length} paired interface labels, ${authStrings} authentication strings, Amharic system/sample copy, exact English tagline and localized PWA manifests.`);
+console.log("PASS: Amharic default, explicit English preference, language-link overrides and switcher order.");

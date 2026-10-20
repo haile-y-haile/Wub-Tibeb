@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { amSystem, ownCopy } from "./localized-copy";
+import { initialLanguage, LANGUAGE_CHOICE_KEY } from "./language-preference";
 
 export type Lang = "en" | "am";
 
@@ -245,15 +246,24 @@ const I18n = createContext<Ctx | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<Lang>(() => {
-    const requested=new URLSearchParams(location.search).get("lang");
-    return requested==="am"||requested==="en"?requested:localStorage.getItem("kemis-lang")==="am"?"am":"en";
+    // Old releases auto-saved English even when nobody chose it. Only an
+    // explicit language choice should override the new Amharic default.
+    return initialLanguage(location.search,localStorage.getItem(LANGUAGE_CHOICE_KEY));
   });
   useEffect(()=>{
     localStorage.setItem("kemis-lang",lang);
     document.documentElement.lang=lang;
     document.querySelector('link[rel="manifest"]')?.setAttribute("href",`${import.meta.env.BASE_URL}${lang==="am"?"manifest-am.webmanifest":"manifest.webmanifest"}`);
   },[lang]);
-  const setLang = useCallback((l: Lang) => setLangState(l), []);
+  const setLang = useCallback((l: Lang) => {
+    localStorage.setItem(LANGUAGE_CHOICE_KEY,l);
+    setLangState(l);
+    const url=new URL(location.href);
+    if(url.searchParams.has("lang")) {
+      url.searchParams.set("lang",l);
+      history.replaceState(history.state,"",url.toString());
+    }
+  }, []);
   const t = useCallback((k: Key) => (lang === "am" ? am[k] : en[k]), [lang]);
   const e = useCallback((v: string) => (lang === "am" ? ownCopy(amEnums,v) ?? ownCopy(amSystem,v) ?? v : v), [lang]);
   return <I18n.Provider value={{ lang, setLang, t, e }}>{children}</I18n.Provider>;

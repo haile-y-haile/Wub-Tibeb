@@ -4,6 +4,7 @@ import {
   type ErrorInfo,
   type ReactNode,
 } from 'react';
+import { initialLanguage, LANGUAGE_CHOICE_KEY } from "@/lib/language-preference";
 
 export interface ErrorFallbackProps {
   error: Error;
@@ -36,7 +37,7 @@ function toError(value: unknown): Error {
 }
 
 function DefaultFallback({ error, resetError }: ErrorFallbackProps) {
-  const am=localStorage.getItem("kemis-lang")==="am";
+  const am=initialLanguage(location.search,localStorage.getItem(LANGUAGE_CHOICE_KEY))==="am";
   // React.lazy remembers a failed import. Resetting only this boundary cannot
   // recover it; reload the document after a network/deployment chunk failure.
   const importFailed=/dynamically imported module|Importing a module script failed|ChunkLoadError|Loading chunk/i.test(error.message);

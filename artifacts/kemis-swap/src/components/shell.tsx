@@ -5,6 +5,7 @@ import { Bell, Compass, Download, HeartHandshake, LogOut, Shield, Shirt, UserRou
 import { useGetNotifications, useGetProfile, useSaveProfile, getGetNotificationsQueryKey, getGetProfileQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useI18n, type Lang } from "@/lib/i18n";
+import { LANGUAGE_ORDER } from "@/lib/language-preference";
 import { basePath } from "@/lib/kemis";
 import { cn } from "@/lib/utils";
 
@@ -45,7 +46,7 @@ export function LangToggle() {
   };
   return (
     <div role="group" aria-label={t("language")} className="flex rounded-full border border-border bg-card p-0.5 text-xs font-semibold">
-      {(["en", "am"] as const).map((l) => (
+      {LANGUAGE_ORDER.map((l) => (
         <button key={l} type="button" onClick={() => pick(l)} aria-pressed={lang === l} data-testid={`button-lang-${l}`}
           className={cn("min-h-8 rounded-full px-3 transition-colors", lang === l ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>
           {l === "en" ? t("englishShort") : <span lang="am">አማ</span>}

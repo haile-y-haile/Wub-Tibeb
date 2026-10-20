@@ -74,7 +74,7 @@ export function ProfileForm({ profile, onDone }: { profile?: Profile | null; onD
       <div className="space-y-1.5">
         <Label>{t("language")}</Label>
         <div className="flex gap-2">
-          {(["en", "am"] as const).map((l) => (
+          {(["am", "en"] as const).map((l) => (
             <button type="button" key={l} onClick={() => setLang(l)} aria-pressed={lang === l} data-testid={`button-profile-lang-${l}`}
               className={`h-11 flex-1 rounded-xl border text-sm font-semibold ${lang === l ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
               {l === "en" ? t("englishLanguage") : t("amharicLanguage")}

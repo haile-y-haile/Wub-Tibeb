@@ -3,7 +3,7 @@
 <body><div><img src="logo.svg" width="64" height="64" alt=""><p class="n" id="brand">ውብ ጥበብ</p><p id="tagline">ይልበሱ። ያጋሩ። ይድገሙ።</p><h1 id="title">ከመስመር ውጭ ነዎት</h1><div class="b"></div><p id="body">ቀሚሶችንና መልእክቶችን ለማየት የበይነመረብ ግንኙነት ያስፈልጋል።</p><button id="retry" onclick="location.reload()">እንደገና ሞክር</button></div>
 <script>
 const fontStyle=document.createElement("style");fontStyle.textContent='html[lang="am"] body,html[lang="am"] h1,html[lang="am"] .n{font-family:"Wub Ethiopic",system-ui,sans-serif}';document.head.appendChild(fontStyle);
-let am=true;try{am=localStorage.getItem("kemis-lang")!=="en"}catch{}
+let am=true;try{const requested=new URLSearchParams(location.search).get("lang");am=requested==="am"||requested==="en"?requested==="am":localStorage.getItem("kemis-language-choice")!=="en"}catch{}
 document.documentElement.lang=am?"am":"en";
 document.title=am?"ከመስመር ውጭ · ውብ ጥበብ":"Offline · Wub Tibeb";
 if(!am){const copy={brand:"Wub Tibeb",tagline:"Wear. Share. Repeat.",title:"You are offline",body:"A connection is needed to show dresses and messages.",retry:"Try again"};for(const [id,text]of Object.entries(copy))document.getElementById(id).textContent=text;}
