@@ -1,2 +1,3 @@
 - [Handoff disputes](handoff-disputes.md) — physical handoff confirmations require conservative cancellation and moderator closure.
 - [Live code generation](live-code-generation.md) — finish codegen before browser checks; temporary missing modules can become cached lazy-import failures.
+- [Video caption language](video-caption-language.md) — the Wub Tibeb animated introduction is intentionally bilingual.
