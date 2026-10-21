@@ -3,5 +3,6 @@ type ModuleMap = Record<string, () => Promise<Record<string, unknown>>>;
 export const modules: ModuleMap = {
   "./components/mockups/kemis-filters/Combined.tsx": () => import("../components/mockups/kemis-filters/Combined.tsx"),
   "./components/mockups/kemis-filters/Current.tsx": () => import("../components/mockups/kemis-filters/Current.tsx"),
-  "./components/mockups/kemis-filters/EnglishLabels.tsx": () => import("../components/mockups/kemis-filters/EnglishLabels.tsx")
+  "./components/mockups/kemis-filters/EnglishLabels.tsx": () => import("../components/mockups/kemis-filters/EnglishLabels.tsx"),
+  "./components/mockups/kemis-filters/EnglishLabelsScan.tsx": () => import("../components/mockups/kemis-filters/EnglishLabelsScan.tsx")
 };
