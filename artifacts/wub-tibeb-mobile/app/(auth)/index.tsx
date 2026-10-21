@@ -185,9 +185,7 @@ export default function AuthScreen() {
                 disabled={busy || !email.trim() || !password}
                 testID="auth-submit"
               />
-              {mode === 'sign-in' && (
-                <Button title={t('useGoogle')} variant="secondary" icon="globe" onPress={signInWithGoogle} disabled={busy} testID="google-auth" />
-              )}
+              <Button title={t('useGoogle')} variant="secondary" icon="globe" onPress={signInWithGoogle} disabled={busy} testID="google-auth" />
             </>
           )}
           {!!error && (

@@ -3,8 +3,8 @@ name: Authentication methods
 description: Wub Tibeb authentication scope and safeguards.
 ---
 
-The user has dropped phone sign-in/up for Wub Tibeb and wants email sign-in. Google sign-in was requested earlier; clarify whether to retain it if the user asks for email-only. Do not add phone OTP unless the user reverses this decision, and never simulate SMS verification.
+The user wants Wub Tibeb sign-in/up by email and Google, with phone sign-in/up excluded. Keep Google available for both registration and sign-in. Do not add phone OTP unless the user reverses this decision, and never simulate SMS verification.
 
-**Why:** The user changed the app's auth scope to email and dropped phone sign-in/up.
+**Why:** The user explicitly selected email and Google and dropped phone sign-in/up.
 
-**How to apply:** Keep the current email/password flow. Before removing or changing Google sign-in, confirm whether email-only is intended.
+**How to apply:** Keep email/password and Google available in web and mobile flows. Google must also be enabled in the workspace Auth pane; do not present phone sign-in as available.
