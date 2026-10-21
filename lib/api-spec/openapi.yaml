@@ -355,6 +355,10 @@ components:
       type: object
       required: [title, description, photos, condition, color, fabric, embroidery, occasion, timesWorn, measurements]
       properties:
+        clientRequestId:
+          type: string
+          format: uuid
+          description: Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.
         title: { type: string, minLength: 3, maxLength: 100 }
         description: { type: string, minLength: 10, maxLength: 2000 }
         photos: { type: array, minItems: 1, maxItems: 6, items: { type: string } }
@@ -404,6 +408,10 @@ components:
       type: object
       required: [text]
       properties:
+        clientRequestId:
+          type: string
+          format: uuid
+          description: Optional stable UUID. Reuse with identical text when retrying an uncertain send; only one message and notification are created.
         text: { type: string, minLength: 1, maxLength: 2000 }
     Message:
       type: object

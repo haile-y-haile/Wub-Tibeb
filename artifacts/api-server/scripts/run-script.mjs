@@ -1,9 +1,9 @@
 import { build } from "esbuild";
 import { spawnSync } from "node:child_process";
 import { mkdirSync } from "node:fs";
-const scripts={exchange:"src/tests/two-user-exchange.ts",admin:"src/scripts/grant-admin.ts",cleanup:"src/scripts/cleanup-test-run.ts","tutorial-media":"src/tests/tutorial-media.test.ts","upload-tutorials":"src/scripts/upload-tutorials.ts"};
+const scripts={exchange:"src/tests/two-user-exchange.ts",admin:"src/scripts/grant-admin.ts",cleanup:"src/scripts/cleanup-test-run.ts","tutorial-media":"src/tests/tutorial-media.test.ts","upload-tutorials":"src/scripts/upload-tutorials.ts","retry-safety":"src/tests/retry-safety.ts"};
 const name=process.argv[2];
-if(!scripts[name]) throw new Error("Choose exchange, admin, cleanup, tutorial-media or upload-tutorials");
+if(!scripts[name]) throw new Error("Choose exchange, admin, cleanup, tutorial-media, upload-tutorials or retry-safety");
 mkdirSync("generated-artifacts",{recursive:true});
 const outfile=`generated-artifacts/${name}.mjs`;
 await build({entryPoints:[scripts[name]],outfile,bundle:true,platform:"node",format:"esm",

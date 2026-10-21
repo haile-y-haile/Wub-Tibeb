@@ -1,10 +1,9 @@
 import { Router, type IRouter } from "express";
 import { beforeCursor } from "../lib/pagination";
-import { randomUUID } from "node:crypto";
 import { pool } from "@workspace/db";
 import { GetListingsResponse,GetListingResponse,CreateListingBody,UpdateListingBody,SaveProfileBody,GetProfileResponse } from "@workspace/api-zod";
 import { auth,userId } from "../middlewares/auth";
-import { blocked,fail,listing,loadListing,transaction } from "../lib/marketplace";
+import { blocked,createListingOnce,fail,listing,loadListing,transaction } from "../lib/marketplace";
 import { ObjectStorageService } from "../lib/objectStorage";
 
 const router:IRouter=Router();
@@ -79,12 +78,12 @@ router.post("/listings",auth,async(req,res)=>{
   await validatePhotos(uid,b.photos);
   const profile=(await pool.query("SELECT name FROM kemis_profiles WHERE id=$1",[uid])).rows[0];
   if(profile.name==="Member") fail(400,"Please complete your profile before listing a Habesha kemis");
-  const id=randomUUID();
-  await pool.query("INSERT INTO kemis_listings(id,owner_id,data) VALUES($1,$2,$3)",[id,uid,JSON.stringify(b)]);
-  res.status(201).json(GetListingResponse.parse(await loadListing(pool,id)));
+  const {clientRequestId,...data}=b;
+  const result=await createListingOnce(uid,data,clientRequestId);
+  res.status(result.created?201:200).json(GetListingResponse.parse(result.listing));
 });
 router.put("/listings/:id",auth,async(req,res)=>{
-  const b=UpdateListingBody.parse(req.body),uid=userId(req)!;
+  const {clientRequestId:_requestId,...b}=UpdateListingBody.parse(req.body),uid=userId(req)!;
   await validatePhotos(uid,b.photos);
   await transaction(async c=>{
     const l=await loadListing(c,idOf(req));

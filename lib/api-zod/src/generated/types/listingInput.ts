@@ -9,6 +9,8 @@ import type { ListingInputOccasion } from './listingInputOccasion';
 import type { Measurements } from './measurements';
 
 export interface ListingInput {
+  /** Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing. */
+  clientRequestId?: string;
   /**
      * @minLength 3
      * @maxLength 100

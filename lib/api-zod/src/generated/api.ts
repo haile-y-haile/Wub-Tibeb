@@ -188,6 +188,7 @@ export const getListingsResponseOneMeasurementsSleevesMax = 120;
 
 
 export const GetListingsResponseItem = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(getListingsResponseOneTitleMin).max(getListingsResponseOneTitleMax),
   "description": zod.string().min(getListingsResponseOneDescriptionMin).max(getListingsResponseOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(getListingsResponseOnePhotosMax),
@@ -256,6 +257,7 @@ export const createListingBodyMeasurementsSleevesMax = 120;
 
 
 export const CreateListingBody = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(createListingBodyTitleMin).max(createListingBodyTitleMax),
   "description": zod.string().min(createListingBodyDescriptionMin).max(createListingBodyDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(createListingBodyPhotosMax),
@@ -313,6 +315,7 @@ export const createListingResponseOneMeasurementsSleevesMax = 120;
 
 
 export const CreateListingResponse = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(createListingResponseOneTitleMin).max(createListingResponseOneTitleMax),
   "description": zod.string().min(createListingResponseOneDescriptionMin).max(createListingResponseOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(createListingResponseOnePhotosMax),
@@ -384,6 +387,7 @@ export const getListingResponseOneMeasurementsSleevesMax = 120;
 
 
 export const GetListingResponse = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(getListingResponseOneTitleMin).max(getListingResponseOneTitleMax),
   "description": zod.string().min(getListingResponseOneDescriptionMin).max(getListingResponseOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(getListingResponseOnePhotosMax),
@@ -455,6 +459,7 @@ export const updateListingBodyMeasurementsSleevesMax = 120;
 
 
 export const UpdateListingBody = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(updateListingBodyTitleMin).max(updateListingBodyTitleMax),
   "description": zod.string().min(updateListingBodyDescriptionMin).max(updateListingBodyDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(updateListingBodyPhotosMax),
@@ -512,6 +517,7 @@ export const updateListingResponseOneMeasurementsSleevesMax = 120;
 
 
 export const UpdateListingResponse = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(updateListingResponseOneTitleMin).max(updateListingResponseOneTitleMax),
   "description": zod.string().min(updateListingResponseOneDescriptionMin).max(updateListingResponseOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(updateListingResponseOnePhotosMax),
@@ -648,6 +654,7 @@ export const getMatchesResponseDressBOneMeasurementsSleevesMax = 120;
 export const GetMatchesResponseItem = zod.object({
   "id": zod.string(),
   "dressA": zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(getMatchesResponseDressAOneTitleMin).max(getMatchesResponseDressAOneTitleMax),
   "description": zod.string().min(getMatchesResponseDressAOneDescriptionMin).max(getMatchesResponseDressAOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(getMatchesResponseDressAOnePhotosMax),
@@ -676,6 +683,7 @@ export const GetMatchesResponseItem = zod.object({
   "compatible": zod.boolean().optional()
 })),
   "dressB": zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(getMatchesResponseDressBOneTitleMin).max(getMatchesResponseDressBOneTitleMax),
   "description": zod.string().min(getMatchesResponseDressBOneDescriptionMin).max(getMatchesResponseDressBOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(getMatchesResponseDressBOnePhotosMax),
@@ -744,6 +752,7 @@ export const sendMessageBodyTextMax = 2000;
 
 
 export const SendMessageBody = zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID. Reuse with identical text when retrying an uncertain send; only one message and notification are created.'),
   "text": zod.string().min(1).max(sendMessageBodyTextMax)
 })
 
@@ -846,6 +855,7 @@ export const updateExchangeResponseDressBOneMeasurementsSleevesMax = 120;
 export const UpdateExchangeResponse = zod.object({
   "id": zod.string(),
   "dressA": zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(updateExchangeResponseDressAOneTitleMin).max(updateExchangeResponseDressAOneTitleMax),
   "description": zod.string().min(updateExchangeResponseDressAOneDescriptionMin).max(updateExchangeResponseDressAOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(updateExchangeResponseDressAOnePhotosMax),
@@ -874,6 +884,7 @@ export const UpdateExchangeResponse = zod.object({
   "compatible": zod.boolean().optional()
 })),
   "dressB": zod.object({
+  "clientRequestId": zod.string().uuid().optional().describe('Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing.'),
   "title": zod.string().min(updateExchangeResponseDressBOneTitleMin).max(updateExchangeResponseDressBOneTitleMax),
   "description": zod.string().min(updateExchangeResponseDressBOneDescriptionMin).max(updateExchangeResponseDressBOneDescriptionMax),
   "photos": zod.array(zod.string()).min(1).max(updateExchangeResponseDressBOnePhotosMax),

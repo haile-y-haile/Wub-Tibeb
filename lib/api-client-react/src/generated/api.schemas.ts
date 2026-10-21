@@ -97,6 +97,8 @@ export const ListingInputOccasion = {
 } as const;
 
 export interface ListingInput {
+  /** Optional stable UUID for a new listing. Retrying the same request returns the original listing instead of creating a duplicate. Omit when editing. */
+  clientRequestId?: string;
   /**
      * @minLength 3
      * @maxLength 100
@@ -176,6 +178,8 @@ export interface Match {
 }
 
 export interface MessageInput {
+  /** Optional stable UUID. Reuse with identical text when retrying an uncertain send; only one message and notification are created. */
+  clientRequestId?: string;
   /**
      * @minLength 1
      * @maxLength 2000

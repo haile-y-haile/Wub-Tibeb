@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { isDeepStrictEqual } from "node:util";
 import { pool, type PoolClient } from "@workspace/db";
 
 export class MarketError extends Error {
@@ -135,14 +136,33 @@ export async function closeHandoffDisputes(c:Client,listingId:string) {
     for(const uid of [m.user_a,m.user_b]) await notify(c,uid,"A moderator closed the disputed exchange. Both garments are archived; the exchange is not marked completed.");
   }
 }
-export async function sendChat(uid:string,id:string,text:string) {
+export async function createListingOnce(uid:string,data:object,clientRequestId?:string) {
+  return transaction(async c=>{
+    const id=clientRequestId??randomUUID();
+    const existing=(await c.query("SELECT owner_id,data FROM kemis_listings WHERE id=$1",[id])).rows[0];
+    if(existing) {
+      if(existing.owner_id!==uid || !isDeepStrictEqual(existing.data,data)) fail(409,"This request was already used with different details.");
+      return {listing:await loadListing(c,id),created:false};
+    }
+    await c.query("INSERT INTO kemis_listings(id,owner_id,data) VALUES($1,$2,$3)",[id,uid,JSON.stringify(data)]);
+    return {listing:await loadListing(c,id),created:true};
+  });
+}
+
+export async function sendChat(uid:string,id:string,text:string,clientRequestId?:string) {
   return transaction(async c=>{
     const m=await loadMatch(c,id,uid);
+    const messageId=clientRequestId??randomUUID();
+    const existing=(await c.query("SELECT * FROM kemis_messages WHERE id=$1",[messageId])).rows[0];
+    if(existing) {
+      if(existing.sender_id!==uid || existing.match_id!==id || existing.text!==text) fail(409,"This request was already used with different details.");
+      return {id:existing.id,senderId:uid,text:existing.text,createdAt:existing.created_at.toISOString()};
+    }
     if(m.status==="cancelled") fail(409,"Exchange is cancelled");
     if(!text.trim()) fail(400,"Message cannot be blank");
     const recent=await c.query("SELECT count(*)::int n FROM kemis_messages WHERE sender_id=$1 AND created_at>now()-interval '1 minute'",[uid]);
     if(recent.rows[0].n>=30) fail(429,"Too many messages. Please wait a minute.");
-    const r=await c.query("INSERT INTO kemis_messages(id,match_id,sender_id,text) VALUES($1,$2,$3,$4) RETURNING *",[randomUUID(),id,uid,text]);
+    const r=await c.query("INSERT INTO kemis_messages(id,match_id,sender_id,text) VALUES($1,$2,$3,$4) RETURNING *",[messageId,id,uid,text]);
     await notify(c,uid===m.user_a?m.user_b:m.user_a,"You have a new message about your kemis exchange.");
     return {id:r.rows[0].id,senderId:uid,text,createdAt:r.rows[0].created_at.toISOString()};
   });

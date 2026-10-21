@@ -15,8 +15,8 @@ function usePages<T extends {id:string}>(key:readonly unknown[],fetchPage:(befor
   const flat=q.data?.pages.flat();
   return {...q,data:flat?[...new Map(flat.map(item=>[item.id,item])).values()]:undefined};
 }
-export function useListingPages(params?:GetListingsParams) {
-  return usePages(getGetListingsQueryKey(params),before=>getListings({...params,before}),100);
+export function useListingPages(params?:GetListingsParams,enabled=true) {
+  return usePages(getGetListingsQueryKey(params),before=>getListings({...params,before}),100,{enabled});
 }
 export function useMatchPages() {
   return usePages(getGetMatchesQueryKey(),before=>getMatches({before}),100,{refetchInterval:15000});

@@ -28,7 +28,7 @@ router.get("/matches/:id/messages",auth,async(req,res)=>{
 router.post("/matches/:id/messages",auth,async(req,res)=>{
   const b=SendMessageBody.parse(req.body);
   if(!b.text.trim()) {res.status(400).json({error:"Message cannot be blank"});return;}
-  res.status(201).json(SendMessageResponse.parse(await sendChat(userId(req)!,String(req.params.id),b.text.trim())));
+  res.status(201).json(SendMessageResponse.parse(await sendChat(userId(req)!,String(req.params.id),b.text.trim(),b.clientRequestId)));
 });
 router.post("/matches/:id/exchange",auth,async(req,res)=>{
   res.json(UpdateExchangeResponse.parse(await exchange(userId(req)!,String(req.params.id),UpdateExchangeBody.parse(req.body))));

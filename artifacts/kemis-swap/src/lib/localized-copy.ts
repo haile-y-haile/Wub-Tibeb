@@ -2,6 +2,7 @@ import type { Listing } from "@workspace/api-client-react";
 
 /** Authored system/sample copy only. Never machine-translate members' messages. */
 export const amSystem: Record<string,string> = {
+  "This request was already used with different details.":"ይህ ጥያቄ ከዚህ በፊት በተለየ መረጃ ተጠቅሞበታል። የተቀመጠውን መረጃ ያረጋግጡ።",
   "No unresolved handoff dispute for this dress":"ለዚህ ቀሚስ ያልተዘጋ የርክክብ ክርክር የለም።",
   "A moderator closed the disputed exchange. Both garments are archived; the exchange is not marked completed.":"ተቆጣጣሪው የተከራከረውን ልውውጥ ዘግተዋል። ሁለቱም ቀሚሶች ከልውውጥ ተወግደዋል፤ ልውውጡ እንደተጠናቀቀ አልተቆጠረም።",
   "A member blocked their exchange partner after a confirmed handoff. Moderator review is required.":"አንድ አባል ርክክቡ ከተረጋገጠ በኋላ የልውውጥ አጋራቸውን አግደዋል። የተቆጣጣሪ ግምገማ ያስፈልጋል።",

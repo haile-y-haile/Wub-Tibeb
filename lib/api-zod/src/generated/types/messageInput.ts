@@ -6,6 +6,8 @@
  */
 
 export interface MessageInput {
+  /** Optional stable UUID. Reuse with identical text when retrying an uncertain send; only one message and notification are created. */
+  clientRequestId?: string;
   /**
      * @minLength 1
      * @maxLength 2000

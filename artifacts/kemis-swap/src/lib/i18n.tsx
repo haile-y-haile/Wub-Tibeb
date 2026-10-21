@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
 import { amSystem, ownCopy } from "./localized-copy";
+import { xen, xam } from "./i18n-extra";
 import { initialLanguage, LANGUAGE_CHOICE_KEY } from "./language-preference";
 
 export type Lang = "en" | "am";
@@ -117,6 +118,7 @@ const en = {
   closeDispute:"Close handoff dispute",closeDisputeConfirm:"Only after reviewing the report: close the disputed exchange and archive BOTH garments. This preserves the conversation and confirmations, does not relist either garment, and does not mark the exchange completed.",
   moreOwn:"Show more of my dresses",
   howItWorks:"How it works",
+  ...xen,
 } as const;
 
 type Key = keyof typeof en;
@@ -234,6 +236,7 @@ const am: Record<Key, string> = {
   closeDispute:"የርክክብ ክርክርን ዝጋ",closeDisputeConfirm:"ሪፖርቱን ከመረመሩ በኋላ ብቻ፦ የተከራከረውን ልውውጥ ዝጋና ሁለቱንም ቀሚሶች ከልውውጥ አስወግድ። ውይይቱና ማረጋገጫዎቹ ይቀመጣሉ፤ ቀሚሶቹ እንደገና አይቀርቡም፤ ልውውጡም እንደተጠናቀቀ አይቆጠርም።",
   moreOwn:"ተጨማሪ የራሴን ቀሚሶች አሳይ",
   howItWorks:"እንዴት ይሠራል",
+  ...xam,
 };
 
 const amEnums: Record<string, string> = {
@@ -276,4 +279,5 @@ export function useI18n() {
   if (!c) throw new Error("I18nProvider missing");
   return c;
 }
+export type I18nKey = Key;
 export function UiText({name}:{name:Key}) { return useI18n().t(name); }
