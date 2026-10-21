@@ -1,0 +1,73 @@
+@font-face {
+  font-family: "Wub Ethiopic";
+  src: url("/__mockup/fonts/wub-ethiopic.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400 800;
+  font-display: swap;
+  unicode-range: U+1200-139F, U+2D80-2DDF, U+AB00-AB2F;
+}
+
+.kemis-mock {
+  --km-background: 42 45% 95%;
+  --km-foreground: 152 30% 12%;
+  --km-border: 40 28% 82%;
+  --km-card: 44 60% 98%;
+  --km-card-border: 40 30% 84%;
+  --km-primary: 153 45% 21%;
+  --km-primary-foreground: 44 60% 96%;
+  --km-secondary: 42 42% 89%;
+  --km-muted: 42 35% 90%;
+  --km-muted-foreground: 150 10% 34%;
+  --km-accent: 40 58% 52%;
+  --km-accent-foreground: 152 35% 10%;
+  --km-clay: 6 55% 45%;
+  color: hsl(var(--km-foreground));
+  background: hsl(var(--km-background));
+  font-family: "Figtree", "Wub Ethiopic", "Noto Sans Ethiopic", system-ui, sans-serif;
+}
+
+.kemis-mock *,
+.kemis-mock *::before,
+.kemis-mock *::after {
+  box-sizing: border-box;
+}
+
+.kemis-mock [lang="am"] {
+  font-family: "Wub Ethiopic", "Noto Sans Ethiopic", system-ui, sans-serif;
+  line-height: 1.65;
+  letter-spacing: normal;
+}
+
+.kemis-mock .km-paper {
+  background: hsl(var(--km-card));
+  border: 1px solid hsl(var(--km-card-border));
+  box-shadow: 0 12px 34px hsl(152 30% 12% / 0.055);
+}
+
+.kemis-mock .km-tibeb {
+  height: 8px;
+  background:
+    linear-gradient(135deg, hsl(var(--km-accent)) 25%, transparent 25%) -4px 0 / 8px 8px,
+    linear-gradient(225deg, hsl(var(--km-accent)) 25%, transparent 25%) -4px 0 / 8px 8px,
+    linear-gradient(315deg, hsl(var(--km-primary)) 25%, transparent 25%) 0 0 / 8px 8px,
+    linear-gradient(45deg, hsl(var(--km-primary)) 25%, transparent 25%) 0 0 / 8px 8px,
+    hsl(var(--km-clay));
+}
+
+.kemis-mock .km-grain {
+  background-image: radial-gradient(hsl(40 30% 70% / .18) .7px, transparent .7px);
+  background-size: 4px 4px;
+}
+
+.kemis-mock .km-rise {
+  animation: km-rise .42s cubic-bezier(.2, .7, .2, 1) both;
+}
+
+@keyframes km-rise {
+  from { opacity: 0; transform: translateY(9px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kemis-mock .km-rise { animation: none; }
+}
