@@ -107,11 +107,11 @@ export default function Discover() {
   const params = useMemo<GetListingsParams>(() => {
     const p: GetListingsParams = { ...f };
     // Backend rejects compatible=true without saved preferences; never send it then.
-    if (p.compatible && !hasFullMeasures(me?.preferredMeasurements)) delete p.compatible;
+    if (p.compatible && !hasFullMeasures(me?.measurements)) delete p.compatible;
     if (dq) p.q = dq;
     (Object.keys(p) as (keyof GetListingsParams)[]).forEach((k) => (p[k] === "" || p[k] === undefined || p[k] === false) && delete p[k]);
     return p;
-  }, [f, dq, me?.preferredMeasurements]);
+  }, [f, dq, me?.measurements]);
   const listings = useListingPages(params);
   const mine = useListingPages({mine:true});
   const myActive = useMemo(() => (mine.data ?? []).filter((l) => l.status === "active" && !l.demo), [mine.data]);
@@ -155,7 +155,7 @@ export default function Discover() {
   };
   const decide = (l: Listing, d: "like" | "pass") => (d === "like" ? askLike(l) : pass(l));
   const likeBlocked = !!blockReason(current);
-  const prefsMissing = !hasFullMeasures(me?.preferredMeasurements);
+  const prefsMissing = !hasFullMeasures(me?.measurements);
   const filtersOn = !!dq || Object.keys(params).length > 0;
   const clearAll = () => { setF({}); setQ(""); setDq(""); };
   const emptyAction = (
@@ -294,7 +294,7 @@ export default function Discover() {
           )}
       </div>
 
-      <LikeConfirm pair={pair} prefs={me?.preferredMeasurements} pending={swipe.isPending} error={likeError} onCancel={() => { setPair(null); setLikeError(null); }} onConfirm={confirmLike} />
+      <LikeConfirm pair={pair} prefs={me?.measurements} pending={swipe.isPending} error={likeError} onCancel={() => { setPair(null); setLikeError(null); }} onConfirm={confirmLike} />
 
       <Dialog open={!!match} onOpenChange={(o) => !o && setMatch(null)}>
         <DialogContent className="overflow-hidden bg-card p-0">

@@ -32,6 +32,7 @@ function text(v: string, min: number, max: number): FieldErr | undefined {
   if (!s) return { code: "required" };
   if (s.length < min) return { code: "tooShort", n: min };
   if (s.length > max) return { code: "tooLong", n: max };
+  return undefined;
 }
 function numErr(v: string, min: number, max: number, whole = false): FieldErr | undefined {
   const s = v.trim().replace(",", ".");
@@ -40,6 +41,7 @@ function numErr(v: string, min: number, max: number, whole = false): FieldErr | 
   if (!Number.isFinite(n)) return { code: "number" };
   if (whole && !Number.isInteger(n)) return { code: "whole" };
   if (n < min || n > max) return { code: "range", min, max };
+  return undefined;
 }
 
 export function validateStep(step: number, d: Pick<ListingDraft, "fields" | "photos" | "pending">, opts: { conditions: string[]; occasions: string[] }): StepErrors {
