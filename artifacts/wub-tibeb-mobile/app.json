@@ -1,0 +1,51 @@
+{
+  "expo": {
+    "name": "Wub Tibeb",
+    "slug": "wub-tibeb-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "wubtibeb",
+    "description": "Wub Tibeb — ውብ ጥበብ. Wear. Share. Repeat. A community for exchanging traditional Habesha kemis in Ethiopia.",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.wubtibeb.app"
+    },
+    "android": {
+      "package": "com.wubtibeb.app",
+      "blockedPermissions": ["android.permission.RECORD_AUDIO"],
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#1D4E3B"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#1D4E3B"
+        }
+      ],
+      "expo-video",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "ፎቶዎችን ለቀሚስ ዝርዝርዎ ለመጠቀም ፍቃድ ይስጡ። Wub Tibeb uses selected photos only for your dress listing."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
