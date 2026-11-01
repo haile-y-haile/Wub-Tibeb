@@ -34,6 +34,7 @@ const clerkPubKey = publishableKeyFromHost(
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
 
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
+const canonicalOrigin = "https://wubtibeb.com";
 
 function stripBase(path: string): string {
   return basePath && path.startsWith(basePath)
@@ -168,16 +169,20 @@ function AppRoutes() {
   };
   const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : brand);
   useEffect(() => {
+    const canonicalPath = new URL(stripBase(location), canonicalOrigin).pathname.replace(/\/+$/, "") || "/";
+    const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
     document.title = `${title===brand?brand:`${title} · ${t("appName")}`} — ${t("tagline")}`;
     const description = `${t("appName")}. ${t("tagline")} ${t("appDescription")}`;
+    document.querySelector('link[rel="canonical"]')?.setAttribute("href", canonicalUrl);
     document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute("content",t("appName"));
     document.querySelector('meta[property="og:locale"]')?.setAttribute("content",lang==="am"?"am_ET":"en_ET");
+    document.querySelector('meta[property="og:url"]')?.setAttribute("content", canonicalUrl);
     document.querySelector('meta[name="description"]')?.setAttribute("content", description);
     document.querySelector('meta[property="og:title"]')?.setAttribute("content", document.title);
     document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
     document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", document.title);
     document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", description);
-  }, [title,lang,t]);
+  }, [title,lang,t,location]);
   return (
     <Switch>
       <Route path="/sign-in/*?" component={SignInPage} />
