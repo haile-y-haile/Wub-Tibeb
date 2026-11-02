@@ -61,6 +61,22 @@ Keep the API's `/api` base path. The app rejects cross-origin state-changing req
 - Set the apex/`www` canonical redirect, TLS, and Cloudflare proxy/routing from the owner-controlled dashboard. This source change does not attach domains or change DNS.
 - Test the service worker and installation after moving to the root path; its cache scope and asset URLs must not retain the old Replit artifact prefix.
 
+### Cloudflare staging preparation status — November 2, 2026
+
+The website build has been verified locally with:
+
+```sh
+PORT=25077 BASE_PATH=/ pnpm --filter @workspace/kemis-swap run build
+```
+
+For a future Cloudflare Pages project, the monorepo root is the repository root, the build output is `artifacts/kemis-swap/dist/public`, and the app's API requests remain same-origin under `/api`. The build also needs `BASE_PATH=/` and a `PORT` value because the Vite config requires both variables.
+
+This is **preparation only**, not a deployed staging site. A Pages-only preview would not be a valid app test: no Cloudflare Pages Function currently routes `/api/*`, and the client would otherwise either fail those requests or require an unsafe cross-origin production API setting. Do not connect the preview to production API, PostgreSQL, Clerk credentials, or photo storage.
+
+Before creating a staging deployment, the owner must select or provision an isolated staging API, PostgreSQL database, private photo-storage location, and Clerk development/staging application with the preview origin allowed. Then configure the Pages build settings above and route `/api/*` only to that staging API. Keep the preview on its `pages.dev` hostname until the complete sign-in, listing/upload, matching, messaging, and handoff test passes. Attach no custom domain and change no DNS as part of staging preparation.
+
+No Cloudflare project, Pages Function, API host, database, storage bucket, Clerk application, secret, custom domain, or deployment was created in this step. This workspace does not have a connected Cloudflare dashboard integration, so the owner will need to perform the dashboard setup after the isolated backend prerequisites are chosen.
+
 ### 6. Reconnect Clerk and Google sign-in
 
 - Keep email and Google enabled; phone sign-in is currently off.
