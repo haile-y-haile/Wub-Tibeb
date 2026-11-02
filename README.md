@@ -22,6 +22,7 @@ Use the managed API Server and Wub Tibeb app workflows in Replit. They supply th
 pnpm install --frozen-lockfile
 pnpm run typecheck
 pnpm --filter @workspace/api-spec run codegen # after changing the API specification
+pnpm --filter @workspace/api-server test:security
 pnpm --filter @workspace/api-server test:exchange
 node scripts/check-amharic.mjs
 ```
@@ -74,7 +75,7 @@ Moderator UI: `/moderation`. Reports can be dismissed or their listing hidden. B
 
 ## Photos, privacy, low bandwidth
 
-Browser images are resized to at most 1200 pixels on the longest edge and compressed as WebP, with a 2 MB per-photo cap. Signed upload URLs expire after 15 minutes. Photo bytes persist in App Storage, not PostgreSQL or the app's ephemeral disk. PostgreSQL stores paths and upload ownership metadata.
+Browser images are resized to at most 1200 pixels on the longest edge and compressed as WebP, with a 2 MB per-photo cap. Photo bytes are sent to the authenticated API, validated for actual size, allowed MIME type and image signature before App Storage accepts them, then persisted in App Storage rather than PostgreSQL or the app's ephemeral disk. PostgreSQL stores paths and upload ownership metadata. If the metadata insert fails, the API removes the just-uploaded object; members can also remove unreferenced draft photos, while photos still referenced by any listing are protected.
 
 Listing submissions verify upload ownership, object existence, size, MIME type and image signatures. Only photos attached to available public dresses are publicly viewable; owners and exchange participants have scoped access to other relevant photos. Short private browser caching is used for photos. A previously downloaded photo cannot be remotely erased from another device.
 
@@ -97,6 +98,8 @@ Six development listings are labeled **Sample**, with descriptions explicitly sa
 For real swaps, two real members must register and each list an actual dress with their own photos.
 
 ## Verification
+
+`test:security` checks that the API's resolved Express, body-parser and proxy-addr versions stay at or above the patched minimums. It also exercises the upload validation and cleanup path with in-memory storage doubles; it does not upload to a live bucket.
 
 `test:exchange` runs a real PostgreSQL/App Storage integration test with isolated synthetic fixtures:
 
@@ -135,3 +138,9 @@ pnpm --filter @workspace/api-server test:tutorials
 Each set contains matching `.mp4`, `.webp` and `.vtt` files named `listing-am`, `listing-en`, `matching-am`, `matching-en`, `exchange-am` or `exchange-en`. The upload command validates the complete set before uploading and uses the existing App Storage configuration without printing credentials. Generated recordings and intermediate frames are excluded from Git and deployment bundles. When listing labels or exchange steps change, regenerate the affected clips and captions to keep the instructions accurate.
 
 Publish updated application code to make these guides available on the shared live site; media uploaded to App Storage is not a substitute for publishing the new page and serving route.
+
+## Website launch and migration notes
+
+- Source-only migration checklist: [`artifacts/kemis-swap/MIGRATION-READINESS.md`](artifacts/kemis-swap/MIGRATION-READINESS.md).
+- Public website policy pages are `/privacy`, `/terms`, `/safety`, and `/contact`. Their content is explicitly marked as a legal-review draft; missing operator identity, verified privacy/support contact, age policy, and retention rules are launch blockers.
+- `public/ads.txt` contains only a comment because no verified advertising seller/publisher is authorized. Do not insert a publisher ID or display ads before approval.

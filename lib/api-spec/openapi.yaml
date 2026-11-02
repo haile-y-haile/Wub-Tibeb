@@ -294,25 +294,40 @@ paths:
           description: Unknown or unavailable tutorial asset
         "416":
           description: Unsupported or unsatisfiable range
-  /storage/uploads/request-url:
+  /storage/uploads:
     post:
-      operationId: requestUpload
+      operationId: uploadPhoto
       requestBody:
         required: true
         content:
-          application/json:
-            schema: { $ref: "#/components/schemas/UploadInput" }
+          image/jpeg:
+            schema: { type: string, format: binary }
+          image/png:
+            schema: { type: string, format: binary }
+          image/webp:
+            schema: { type: string, format: binary }
       responses:
-        "200":
-          description: Signed upload
+        "201":
+          description: Photo stored after server-side validation
           content:
             application/json:
               schema:
-                type: object
-                required: [uploadURL, objectPath]
-                properties:
-                  uploadURL: { type: string }
-                  objectPath: { type: string }
+                $ref: "#/components/schemas/UploadedPhoto"
+        "400": { description: Invalid image data }
+        "413": { description: Photo exceeds the 2 MB limit }
+        "415": { description: Unsupported image type }
+  /storage/uploads/{id}:
+    delete:
+      operationId: deleteUpload
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        "204": { description: Unreferenced upload deleted }
+        "404": { description: Upload not found or not owned by the caller }
+        "409": { description: Photo is still used by a listing }
 components:
   schemas:
     HealthStatus:
@@ -465,10 +480,8 @@ components:
       properties:
         reportId: { type: string }
         action: { type: string, enum: [dismiss, hide, close_dispute] }
-    UploadInput:
+    UploadedPhoto:
       type: object
-      required: [name, size, contentType]
+      required: [objectPath]
       properties:
-        name: { type: string, maxLength: 200 }
-        size: { type: integer, minimum: 1, maximum: 2097152 }
-        contentType: { type: string, enum: [image/jpeg, image/webp, image/png] }
+        objectPath: { type: string }

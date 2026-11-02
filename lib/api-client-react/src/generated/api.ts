@@ -39,11 +39,10 @@ import type {
   ProfileInput,
   Report,
   ReportInput,
-  RequestUpload200,
   Success,
   SwipeDress200,
   SwipeInput,
-  UploadInput
+  UploadedPhoto
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1703,15 +1702,15 @@ export function useGetTutorialAsset<TData = Awaited<ReturnType<typeof getTutoria
 
 
 
-export const getRequestUploadUrl = () => {
+export const getUploadPhotoUrl = () => {
 
 
 
 
-  return `/api/storage/uploads/request-url`
+  return `/api/storage/uploads`
 }
 
-export const requestUpload = async (uploadInput: UploadInput, options?: Parameters<typeof customFetch>[1]): Promise<RequestUpload200> => {
+export const uploadPhoto = async (uploadPhotoBody: Blob, options?: Parameters<typeof customFetch>[1]): Promise<UploadedPhoto> => {
 
     const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
     if (!h) return {};
@@ -1727,12 +1726,12 @@ export const requestUpload = async (uploadInput: UploadInput, options?: Paramete
     }
     return headers;
   };
-return customFetch<RequestUpload200>(getRequestUploadUrl(),
+return customFetch<UploadedPhoto>(getUploadPhotoUrl(),
   {
     ...options,
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
-    body: JSON.stringify(uploadInput)
+    headers: { 'Content-Type': 'image/jpeg', ...getHeaders(options?.headers) },
+    body: uploadPhotoBody
   }
 );}
 
@@ -1740,13 +1739,13 @@ return customFetch<RequestUpload200>(getRequestUploadUrl(),
 
 
 
-export const getRequestUploadMutationKey = () => ['requestUpload'] as const;
+export const getUploadPhotoMutationKey = () => ['uploadPhoto'] as const;
 
-export const getRequestUploadMutationOptions = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestUpload>>, TError,RequestUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
-): UseMutationOptions<Awaited<ReturnType<typeof requestUpload>>, TError,RequestUploadMutationVariables, TContext> => {
+export const getUploadPhotoMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadPhoto>>, TError,UploadPhotoMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof uploadPhoto>>, TError,UploadPhotoMutationVariables, TContext> => {
 
-const mutationKey = getRequestUploadMutationKey();
+const mutationKey = getUploadPhotoMutationKey();
 const {mutation: mutationOptions, request: requestOptions} = options ?
       options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
       options
@@ -1756,10 +1755,10 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
 
 
-      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestUpload>>, RequestUploadMutationVariables> = (props) => {
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof uploadPhoto>>, UploadPhotoMutationVariables> = (props) => {
           const {data} = props ?? {};
 
-          return  requestUpload(data,requestOptions)
+          return  uploadPhoto(data,requestOptions)
         }
 
 
@@ -1769,19 +1768,87 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
   return  { mutationFn, ...mutationOptions }}
 
-    export type RequestUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestUpload>>>
-    export type RequestUploadMutationBody = BodyType<UploadInput>
-    export type RequestUploadMutationError = ErrorType<unknown>
-    export type RequestUploadMutationVariables = {data: BodyType<UploadInput>}
+    export type UploadPhotoMutationResult = NonNullable<Awaited<ReturnType<typeof uploadPhoto>>>
+    export type UploadPhotoMutationBody = BodyType<Blob>
+    export type UploadPhotoMutationError = ErrorType<void>
+    export type UploadPhotoMutationVariables = {data: BodyType<Blob>}
 
-    export const useRequestUpload = <TError = ErrorType<unknown>,
-    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestUpload>>, TError,RequestUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+    export const useUploadPhoto = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof uploadPhoto>>, TError,UploadPhotoMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
-        Awaited<ReturnType<typeof requestUpload>>,
+        Awaited<ReturnType<typeof uploadPhoto>>,
         TError,
-        RequestUploadMutationVariables,
+        UploadPhotoMutationVariables,
         TContext
       > => {
-      return useMutation(getRequestUploadMutationOptions(options));
+      return useMutation(getUploadPhotoMutationOptions(options));
+    }
+
+export const getDeleteUploadUrl = (id: string,) => {
+
+
+
+
+  return `/api/storage/uploads/${id}`
+}
+
+export const deleteUpload = async (id: string, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteUploadUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteUploadMutationKey = () => ['deleteUpload'] as const;
+
+export const getDeleteUploadMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUpload>>, TError,DeleteUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteUpload>>, TError,DeleteUploadMutationVariables, TContext> => {
+
+const mutationKey = getDeleteUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteUpload>>, DeleteUploadMutationVariables> = (props) => {
+          const {id} = props ?? {};
+
+          return  deleteUpload(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteUploadMutationResult = NonNullable<Awaited<ReturnType<typeof deleteUpload>>>
+
+    export type DeleteUploadMutationError = ErrorType<void>
+    export type DeleteUploadMutationVariables = {id: string}
+
+    export const useDeleteUpload = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteUpload>>, TError,DeleteUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteUpload>>,
+        TError,
+        DeleteUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteUploadMutationOptions(options));
     }
 

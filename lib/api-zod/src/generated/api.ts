@@ -1021,21 +1021,15 @@ export const GetTutorialAssetHeader = zod.object({
 export const GetTutorialAssetResponse = zod.unknown()
 
 
-export const requestUploadBodyNameMax = 200;
-
-export const requestUploadBodySizeMax = 2097152;
-
-
-
-export const RequestUploadBody = zod.object({
-  "name": zod.string().max(requestUploadBodyNameMax),
-  "size": zod.number().int().min(1).max(requestUploadBodySizeMax),
-  "contentType": zod.enum(['image/jpeg', 'image/webp', 'image/png'])
-})
-
-export const RequestUploadResponse = zod.object({
-  "uploadURL": zod.string(),
+export const UploadPhotoResponse = zod.object({
   "objectPath": zod.string()
 })
+
+
+export const DeleteUploadParams = zod.object({
+  "id": zod.coerce.string().uuid()
+})
+
+export const DeleteUploadResponse = zod.void()
 
 

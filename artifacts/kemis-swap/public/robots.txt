@@ -1,2 +1,13 @@
 User-agent: *
 Allow: /
+Disallow: /sign-in
+Disallow: /sign-up
+Disallow: /discover
+Disallow: /wardrobe
+Disallow: /matches
+Disallow: /profile
+Disallow: /notifications
+Disallow: /moderation
+Disallow: /dress/
+
+Sitemap: https://wubtibeb.com/sitemap.xml

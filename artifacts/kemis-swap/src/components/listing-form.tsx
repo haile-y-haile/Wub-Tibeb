@@ -5,7 +5,7 @@ import { z } from "zod";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-  useCreateListing, useUpdateListing, useRequestUpload, getGetListingsQueryKey, getGetListingQueryKey,
+  useCreateListing, useUpdateListing, uploadPhoto, deleteUpload, getGetListingsQueryKey, getGetListingQueryKey,
   type Listing, type ListingInput,
 } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useI18n } from "@/lib/i18n";
 import { CONDITIONS, MEASURE_KEYS, OCCASIONS, compressImage, errMsg, photoSrc } from "@/lib/kemis";
+
+function cleanUnreferencedPhoto(path: string): Promise<void> {
+  const id = path.split("/").pop();
+  return id ? deleteUpload(id).then(() => undefined).catch(() => undefined) : Promise.resolve();
+}
 
 const num = (min: number, max: number) => z.coerce.number().min(min).max(max);
 const schema = z.object({
@@ -36,7 +41,6 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
   const qc = useQueryClient();
   const create = useCreateListing();
   const update = useUpdateListing();
-  const reqUpload = useRequestUpload();
   const [photos, setPhotos] = useState<string[]>(listing?.photos ?? []);
   const [busy, setBusy] = useState(0);
   const [photoErr, setPhotoErr] = useState(false);
@@ -60,10 +64,8 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
       setBusy((b) => b + 1);
       try {
         const blob = await compressImage(file);
-        const name = file.name.replace(/\.[^.]+$/, "").slice(0, 180) + ".webp";
-        const { uploadURL, objectPath } = await reqUpload.mutateAsync({ data: { name, size: blob.size, contentType: "image/webp" } });
-        const res = await fetch(uploadURL, { method: "PUT", body: blob, headers: { "Content-Type": "image/webp" } });
-        if (!res.ok) throw new Error("upload failed");
+        if (blob.size > 2 * 1024 * 1024) throw new Error(t("photoTooLarge"));
+        const { objectPath } = await uploadPhoto(blob, { headers: { "Content-Type": blob.type || "image/webp" } });
         setPhotos((p) => [...p, objectPath].slice(0, 6));
         setPhotoErr(false);
       } catch (err) {
@@ -85,6 +87,7 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
     };
     const opts = {
       onSuccess: (l: Listing) => {
+        for (const removed of (listing?.photos ?? []).filter((path) => !data.photos.includes(path))) void cleanUnreferencedPhoto(removed);
         qc.invalidateQueries({ queryKey: getGetListingsQueryKey() });
         qc.setQueryData(getGetListingQueryKey(l.id), l);
         toast({ title: t("saved") });
@@ -123,7 +126,7 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
           {photos.map((p, i) => (
             <div key={p + i} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-secondary">
               <img src={photoSrc(p)} alt="" className="h-full w-full object-cover" />
-              <button type="button" onClick={() => setPhotos(photos.filter((_, j) => j !== i))} aria-label={`${t("delete")} ${i + 1}`} data-testid={`button-remove-photo-${i}`}
+              <button type="button" onClick={() => { const removed = photos[i]; setPhotos(photos.filter((_, j) => j !== i)); if (!listing?.photos.includes(removed)) void cleanUnreferencedPhoto(removed); }} aria-label={`${t("delete")} ${i + 1}`} data-testid={`button-remove-photo-${i}`}
                 className="absolute right-1 top-1 grid h-7 w-7 place-items-center rounded-full bg-foreground/70 text-background"><X className="h-4 w-4" /></button>
             </div>
           ))}
@@ -137,8 +140,8 @@ export function ListingForm({ listing, onDone }: { listing?: Listing; onDone: ()
             </button>
           )}
         </div>
-        <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(ev) => addFiles(ev.target.files)} data-testid="input-photo-file" />
-        {photoErr && <p className="mt-1 text-xs text-destructive">{t("required")}</p>}
+        <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label={t("photos")} onChange={(ev) => addFiles(ev.target.files)} data-testid="input-photo-file" />
+        {photoErr && <p className="mt-1 text-xs text-destructive" role="alert">{t("required")}</p>}
       </div>
       {field("title", t("title"), { placeholder: t("exampleTitle") })}
       <div className="space-y-1.5">

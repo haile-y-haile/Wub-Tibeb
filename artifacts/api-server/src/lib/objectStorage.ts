@@ -41,6 +41,29 @@ export class ObjectNotFoundError extends Error {
 export class ObjectStorageService {
   constructor() {}
 
+  async saveUploadedPhoto(data: Buffer, contentType: string): Promise<string> {
+    const root = this.getPrivateObjectDir().replace(/\/+$/, '');
+    const objectId = randomUUID();
+    const { bucketName, objectName } = parseObjectPath(`${root}/uploads/${objectId}`);
+    const file = objectStorageClient.bucket(bucketName).file(objectName);
+    await file.save(data, {
+      resumable: false,
+      metadata: {
+        contentType,
+        cacheControl: 'private, max-age=300',
+      },
+    });
+    return `/api/storage/objects/uploads/${objectId}`;
+  }
+
+  async deleteUploadedPhoto(objectPath: string): Promise<void> {
+    const match = /^\/api\/storage\/objects\/uploads\/([a-f0-9-]{36})$/.exec(objectPath);
+    if (!match) throw new ObjectNotFoundError();
+    const root = this.getPrivateObjectDir().replace(/\/+$/, '');
+    const { bucketName, objectName } = parseObjectPath(`${root}/uploads/${match[1]}`);
+    await objectStorageClient.bucket(bucketName).file(objectName).delete({ ignoreNotFound: true });
+  }
+
   getPublicObjectSearchPaths(): Array<string> {
     const pathsStr = process.env.PUBLIC_OBJECT_SEARCH_PATHS || '';
     const paths = Array.from(

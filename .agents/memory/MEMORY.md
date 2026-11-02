@@ -4,3 +4,4 @@
 - [Tutorial capture boundaries](tutorial-capture.md) — instructional examples must teach real workflows without creating live transactions or exposing members.
 - [Expo preview environment](expo-preview-environment.md) — a missing native DevTools library and registry release-age checks can be non-blocking in Expo preview.
 - [Authentication methods](authentication-methods.md) — offer email, phone, and Google only when each method is genuinely operational; never simulate SMS verification.
+- [OpenAPI code generation](openapi-codegen.md) — use distinct component names for generated response schemas and preserve pnpm's parent-relative dependency resolution in bundled tests.

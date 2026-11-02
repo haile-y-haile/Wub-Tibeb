@@ -5,7 +5,6 @@
  * OpenAPI spec version: 1.0.0
  */
 
-export type RequestUpload200 = {
-  uploadURL: string;
+export interface UploadedPhoto {
   objectPath: string;
-};
+}

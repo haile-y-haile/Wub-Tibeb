@@ -144,9 +144,22 @@ export async function createListingOnce(uid:string,data:object,clientRequestId?:
       if(existing.owner_id!==uid || !isDeepStrictEqual(existing.data,data)) fail(409,"This request was already used with different details.");
       return {listing:await loadListing(c,id),created:false};
     }
+    const photos=(data as {photos?:unknown}).photos;
+    if(Array.isArray(photos) && photos.every((path):path is string=>typeof path==="string")) {
+      await lockListingUploads(c,uid,photos);
+    }
     await c.query("INSERT INTO kemis_listings(id,owner_id,data) VALUES($1,$2,$3)",[id,uid,JSON.stringify(data)]);
     return {listing:await loadListing(c,id),created:true};
   });
+}
+
+/** Serialize upload deletion with listing writes and keep referenced photos available. */
+export async function lockListingUploads(c: Pick<Client,"query">,uid:string,photos:string[]) {
+  const unique=[...new Set(photos)];
+  if(unique.length!==photos.length) fail(400,"A listing cannot use the same photo more than once");
+  if(!unique.length) return;
+  const r=await c.query("SELECT path FROM kemis_uploads WHERE owner_id=$1 AND path=ANY($2::text[]) FOR UPDATE",[uid,unique]);
+  if(r.rowCount!==unique.length) fail(403,"A photo is no longer available or does not belong to you");
 }
 
 export async function sendChat(uid:string,id:string,text:string,clientRequestId?:string) {

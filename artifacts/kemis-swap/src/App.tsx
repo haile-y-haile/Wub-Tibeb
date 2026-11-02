@@ -23,6 +23,7 @@ const ProfilePage=lazy(()=>import("@/pages/misc").then(m=>({default:m.ProfilePag
 const NotificationsPage=lazy(()=>import("@/pages/misc").then(m=>({default:m.NotificationsPage})));
 const HowItWorks=lazy(()=>import("@/pages/how-it-works"));
 const ModerationPage=lazy(()=>import("@/pages/misc").then(m=>({default:m.ModerationPage})));
+const LegalPage=lazy(()=>import("@/pages/legal").then(m=>({default:m.LegalPage})));
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { staleTime: 15000, refetchOnWindowFocus: true, retry: 1 } } });
 
@@ -166,13 +167,28 @@ function AppRoutes() {
     "/": brand, "/discover": t("discover"), "/wardrobe": t("yourDress"),
     "/matches": t("matches"), "/profile": t("profile"), "/notifications": t("alerts"),
     "/moderation": t("moderation"), "/how-it-works": t("howItWorks"), "/sign-in": t("signIn"), "/sign-up": t("getStarted"),
+    "/privacy": lang==="am"?"የግላዊነት ማስታወቂያ":"Privacy notice",
+    "/terms": lang==="am"?"የአጠቃቀም ውሎች":"Terms of service",
+    "/safety": lang==="am"?"በደህንነት ይለዋወጡ":"Swap safely",
+    "/contact": lang==="am"?"እውቂያና እርዳታ":"Contact and help",
   };
   const title = labels[location] ?? (location.startsWith("/dress/") ? t("viewDetails") : location.startsWith("/matches/") ? t("matches") : brand);
   useEffect(() => {
     const canonicalPath = new URL(stripBase(location), canonicalOrigin).pathname.replace(/\/+$/, "") || "/";
     const canonicalUrl = `${canonicalOrigin}${canonicalPath}`;
     document.title = `${title===brand?brand:`${title} · ${t("appName")}`} — ${t("tagline")}`;
-    const description = `${t("appName")}. ${t("tagline")} ${t("appDescription")}`;
+    const legalDescriptions: Record<string, string> = lang === "am" ? {
+      "/privacy": "የውብ ጥበብ የመለያ፣ የቀሚስ፣ የፎቶ፣ የመልዕክትና የልውውጥ መረጃ አጠቃቀም።",
+      "/terms": "በውብ ጥበብ የቀሚስ ለቀሚስ ልውውጥ ማህበረሰብ የመሳተፍ ደንቦች።",
+      "/safety": "በአካል የቀሚስ ርክክብን በደህንነት ለማዘጋጀት ምክሮች።",
+      "/contact": "ሪፖርት፣ ማገድና የውብ ጥበብ እውቂያ መረጃ።",
+    } : {
+      "/privacy": "How Wub Tibeb uses account, listing, photo, message, and exchange information for its kemis swap community.",
+      "/terms": "Participation terms for Wub Tibeb's direct Habesha kemis-for-kemis exchange community.",
+      "/safety": "Practical advice for arranging a safe in-person Habesha kemis handoff.",
+      "/contact": "How to report a listing or member and the operator details still needed for support.",
+    };
+    const description = legalDescriptions[location] ?? `${t("appName")}. ${t("tagline")} ${t("appDescription")}`;
     document.querySelector('link[rel="canonical"]')?.setAttribute("href", canonicalUrl);
     document.querySelector('meta[name="apple-mobile-web-app-title"]')?.setAttribute("content",t("appName"));
     document.querySelector('meta[property="og:locale"]')?.setAttribute("content",lang==="am"?"am_ET":"en_ET");
@@ -193,6 +209,10 @@ function AppRoutes() {
             <Suspense fallback={<div className="p-6 text-center" role="status">{t("loading")}</div>}><Switch>
               <Route path="/" component={HomeRedirect} />
               <Route path="/how-it-works" component={HowItWorks} />
+              <Route path="/privacy" component={LegalPage} />
+              <Route path="/terms" component={LegalPage} />
+              <Route path="/safety" component={LegalPage} />
+              <Route path="/contact" component={LegalPage} />
               <Route path="/discover" component={DiscoverP} />
               <Route path="/dress/:id" component={Dress} />
               <Route path="/wardrobe" component={WardrobeP} />

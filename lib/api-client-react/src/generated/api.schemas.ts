@@ -257,24 +257,8 @@ export interface ModerationInput {
   action: ModerationInputAction;
 }
 
-export type UploadInputContentType = typeof UploadInputContentType[keyof typeof UploadInputContentType];
-
-
-export const UploadInputContentType = {
-  'image/jpeg': 'image/jpeg',
-  'image/webp': 'image/webp',
-  'image/png': 'image/png',
-} as const;
-
-export interface UploadInput {
-  /** @maxLength 200 */
-  name: string;
-  /**
-     * @minimum 1
-     * @maximum 2097152
-     */
-  size: number;
-  contentType: UploadInputContentType;
+export interface UploadedPhoto {
+  objectPath: string;
 }
 
 export type GetListingsParams = {
@@ -334,10 +318,5 @@ export type GetModerationParams = {
  * @maxLength 160
  */
 before?: string;
-};
-
-export type RequestUpload200 = {
-  uploadURL: string;
-  objectPath: string;
 };
 

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useAuth } from "@clerk/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Check, HardDrive, ImagePlus, Loader2, RotateCcw, X } from "lucide-react";
-import { useCreateListing, useUpdateListing, useRequestUpload, getListing, type Listing, type ListingInput } from "@workspace/api-client-react";
+import { useCreateListing, useUpdateListing, uploadPhoto, deleteUpload, getListing, type Listing, type ListingInput } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,11 @@ type Props = { listing?: Listing; onSaved: (l: Listing, kind: "new" | "edit", no
 const OPTS = { conditions: CONDITIONS as string[], occasions: OCCASIONS as string[] };
 type MK = typeof MEASURE_KEYS[number];
 
+function cleanUnreferencedPhoto(path: string): Promise<void> {
+  const id = path.split("/").pop();
+  return id ? deleteUpload(id).then(() => undefined).catch(() => undefined) : Promise.resolve();
+}
+
 export function ListingWizard(props: Props) {
   const { userId, isLoaded } = useAuth();
   if (!isLoaded || !userId) return <div className="h-40 animate-pulse rounded-2xl bg-secondary" aria-busy="true" />;
@@ -39,7 +44,6 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
   const online = useOnline();
   const create = useCreateListing();
   const updateM = useUpdateListing();
-  const reqUpload = useRequestUpload();
   const help = useMeasureHelp("listing");
   const key = listing ? scopedKey(uid, "draft", "edit", listing.id) : scopedKey(uid, "draft", "new");
 
@@ -143,9 +147,8 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
     patch((d) => ({ ...d, pending: d.pending.map((x) => (x.id === p.id ? { ...x, status: "uploading" } : x)) }));
     try {
       if (!navigator.onLine) throw new Error(t("wzPhotoOfflineWait"));
-      const { uploadURL, objectPath } = await reqUpload.mutateAsync({ data: { name: `kemis-${p.id.slice(0, 8)}.webp`, size: p.blob.size, contentType: "image/webp" } });
-      const res = await fetch(uploadURL, { method: "PUT", body: p.blob, headers: { "Content-Type": "image/webp" } });
-      if (!res.ok) throw new Error(t("wzPhotoFailed"));
+      if (p.blob.size > 2 * 1024 * 1024) throw new Error(t("photoTooLarge"));
+      const { objectPath } = await uploadPhoto(p.blob, { headers: { "Content-Type": p.blob.type || "image/webp" } });
       patch((d) => d.pending.some((x) => x.id === p.id) ? { ...d, pending: d.pending.filter((x) => x.id !== p.id), photos: [...d.photos, objectPath].slice(0, 6) } : d);
       setPhotoMsg(null);
     } catch (err) {
@@ -168,6 +171,11 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
     if (fileRef.current) fileRef.current.value = "";
   }
   const removePending = (id: string) => { const u = urls.current.get(id); if (u) { URL.revokeObjectURL(u); urls.current.delete(id); } patch((d) => ({ ...d, pending: d.pending.filter((x) => x.id !== id) })); };
+  const removePhoto = (index: number) => {
+    const path = draft?.photos[index];
+    patch((d) => ({ ...d, photos: d.photos.filter((_, j) => j !== index) }));
+    if (path && !listing?.photos.includes(path)) void cleanUnreferencedPhoto(path);
+  };
 
   const focusFirst = (errs: StepErrors, step: number) => {
     const order: string[] = step === 0 ? ["photos"] : step === 1 ? [...DETAIL_ORDER] : [...MEASURE_KEYS];
@@ -183,6 +191,8 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
   };
 
   async function discard() {
+    const photos = (draft ?? offer)?.photos ?? [];
+    await Promise.all(photos.filter((path) => !listing?.photos.includes(path)).map(cleanUnreferencedPhoto));
     closed.current = true;
     await queue.current.catch(() => undefined);
     try { await delItem(key); } catch { /* nothing stored */ }
@@ -204,7 +214,10 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
       const at = Date.now();
       await persistNow(draft);
       updateM.mutate({ id: draft.listingId!, data: toPayload(draft) as ListingInput }, {
-        onSuccess: async (l) => { applySavedListing(qc, l); await finish(undefined, at); onSaved(l, "edit"); },
+        onSuccess: async (l) => {
+          await Promise.all((listing?.photos ?? []).filter((path) => !l.photos.includes(path)).map(cleanUnreferencedPhoto));
+          applySavedListing(qc, l); await finish(undefined, at); onSaved(l, "edit");
+        },
         onError: (err) => setSubmitError(`${t("saveEditFailed")} ${errMsg(err, "")}`.trim()),
       });
       return;
@@ -350,7 +363,7 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
               <div key={p + i} className="relative aspect-[3/4] overflow-hidden rounded-xl bg-secondary">
                 <SmartImg path={p} alt={`${t("photos")} ${i + 1}`} className="h-full w-full object-cover" />
                 {i === 0 && <span className="absolute bottom-1 left-1 rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">{t("wzCover")}</span>}
-                <button type="button" onClick={() => patch((x) => ({ ...x, photos: x.photos.filter((_, j) => j !== i) }))} aria-label={`${t("wzPhotoRemove")} ${i + 1}`} data-testid={`button-remove-photo-${i}`}
+                <button type="button" onClick={() => removePhoto(i)} aria-label={`${t("wzPhotoRemove")} ${i + 1}`} data-testid={`button-remove-photo-${i}`}
                   className="absolute right-1 top-1 grid h-9 w-9 place-items-center rounded-full bg-foreground/75 text-background"><X className="h-4 w-4" /></button>
               </div>
             ))}
@@ -376,7 +389,7 @@ function Wizard({ uid, listing, onSaved, onClose }: Props & { uid: string }) {
               </button>
             )}
           </div>
-          <input ref={fileRef} type="file" accept="image/*" multiple hidden onChange={(ev) => void addFiles(ev.target.files)} data-testid="input-photo-file" />
+          <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" multiple hidden aria-label={t("photos")} onChange={(ev) => void addFiles(ev.target.files)} data-testid="input-photo-file" />
           {errP("photos")}
           {d.pending.length > 0 && <p className="text-xs text-muted-foreground">{t("wzPhotoLocal")}</p>}
           {photoMsg && <p className="text-xs font-medium text-destructive" role="alert" data-testid="text-photo-error">{photoMsg}</p>}

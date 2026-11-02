@@ -1,12 +1,43 @@
-import { Router, type IRouter } from "express";
+import express, { Router, type IRouter, type RequestHandler } from "express";
 import { pool } from "@workspace/db";
-import { RequestUploadBody,RequestUploadResponse } from "@workspace/api-zod";
+import { DeleteUploadParams, UploadPhotoResponse } from "@workspace/api-zod";
 import { auth,userId } from "../middlewares/auth";
 import { ObjectStorageService } from "../lib/objectStorage";
-import { fail } from "../lib/marketplace";
+import { fail,transaction } from "../lib/marketplace";
 import { isTutorialAsset, parseTutorialRange } from "../lib/tutorial-media";
+import { InvalidPhotoPayloadError, MAX_PHOTO_BYTES, persistPhotoUpload } from "../lib/photo-upload";
 
 const router:IRouter=Router(),storage=new ObjectStorageService();
+const parseImageBody = express.raw({ type: () => true, limit: MAX_PHOTO_BYTES });
+const enforceUploadQuota: RequestHandler = async (req,res,next) => {
+  try {
+    const count=await pool.query("SELECT count(*)::int n FROM kemis_uploads WHERE owner_id=$1 AND created_at>now()-interval '1 hour'",[userId(req)]);
+    if(count.rows[0].n>=30) { res.status(429).json({error:"Photo upload limit reached. Please try later."}); return; }
+    next();
+  } catch(error) { next(error); }
+};
+const validateAndParseImage: RequestHandler = (req, res, next) => {
+  const contentType = (req.get("content-type") ?? "").split(";")[0].trim().toLowerCase();
+  if (!["image/jpeg", "image/png", "image/webp"].includes(contentType)) {
+    res.status(415).json({ error: "Upload a JPEG, PNG or WebP photo" });
+    return;
+  }
+  parseImageBody(req, res, (error) => {
+    if (error) {
+      if ((error as { status?: number }).status === 413) {
+        res.status(413).json({ error: "Photo must be 2 MB or smaller" });
+        return;
+      }
+      if ((error as { status?: number }).status === 400) {
+        res.status(400).json({ error: "Photo body could not be read" });
+        return;
+      }
+      next(error);
+      return;
+    }
+    next();
+  });
+};
 router.get("/storage/public-objects/tutorials/:filename", async (req, res) => {
   const filename = String(req.params.filename);
   if (!isTutorialAsset(filename)) { res.sendStatus(404); return; }
@@ -46,14 +77,38 @@ router.get("/storage/public-objects/tutorials/:filename", async (req, res) => {
     else res.destroy();
   }).pipe(res);
 });
-router.post("/storage/uploads/request-url",auth,async(req,res)=>{
-  const b=RequestUploadBody.parse(req.body),uid=userId(req)!;
-  const count=await pool.query("SELECT count(*)::int n FROM kemis_uploads WHERE owner_id=$1 AND created_at>now()-interval '1 hour'",[uid]);
-  if(count.rows[0].n>=30) fail(429,"Photo upload limit reached. Please try later.");
-  const uploadURL=await storage.getObjectEntityUploadURL();
-  const objectPath="/api/storage"+storage.normalizeObjectEntityPath(uploadURL);
-  await pool.query("INSERT INTO kemis_uploads(path,owner_id,content_type,size) VALUES($1,$2,$3,$4)",[objectPath,uid,b.contentType,b.size]);
-  res.json(RequestUploadResponse.parse({uploadURL,objectPath}));
+router.post("/storage/uploads",auth,enforceUploadQuota,validateAndParseImage,async(req,res)=>{
+  const uid=userId(req)!;
+  const contentType=(req.get("content-type")??"").split(";")[0].trim().toLowerCase();
+  const data=Buffer.isBuffer(req.body)?req.body:Buffer.alloc(0);
+  let objectPath:string;
+  try {
+    objectPath=await persistPhotoUpload({
+      contentType,data,storage,
+      recordMetadata:async(path,type,size)=>{
+        await pool.query("INSERT INTO kemis_uploads(path,owner_id,content_type,size) VALUES($1,$2,$3,$4)",[path,uid,type,size]);
+      },
+      onCleanupError:(cleanupError,path)=>req.log.error({cleanupError,objectPath:path},"Failed to remove photo after upload metadata write failed"),
+    });
+  } catch(error) {
+    if(error instanceof InvalidPhotoPayloadError) fail(400,error.message);
+    throw error;
+  }
+  res.status(201).json(UploadPhotoResponse.parse({objectPath}));
+});
+router.delete("/storage/uploads/:id",auth,async(req,res)=>{
+  const params=DeleteUploadParams.safeParse(req.params);
+  if(!params.success) { res.status(400).json({error:"Invalid photo id"}); return; }
+  const uid=userId(req)!,path="/api/storage/objects/uploads/"+params.data.id;
+  await transaction(async c=>{
+    const upload=await c.query("SELECT path FROM kemis_uploads WHERE path=$1 AND owner_id=$2 FOR UPDATE",[path,uid]);
+    if(!upload.rowCount) fail(404,"Photo not found");
+    const referenced=await c.query("SELECT 1 FROM kemis_listings WHERE data->'photos' ? $1 LIMIT 1",[path]);
+    if(referenced.rowCount) fail(409,"Photo is still used by a listing");
+    await storage.deleteUploadedPhoto(path);
+    await c.query("DELETE FROM kemis_uploads WHERE path=$1 AND owner_id=$2",[path,uid]);
+  });
+  res.sendStatus(204);
 });
 router.get("/storage/objects/uploads/:id",async(req,res)=>{
   const path="/api/storage/objects/uploads/"+String(req.params.id);

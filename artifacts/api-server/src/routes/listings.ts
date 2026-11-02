@@ -3,7 +3,7 @@ import { beforeCursor } from "../lib/pagination";
 import { pool } from "@workspace/db";
 import { GetListingsResponse,GetListingResponse,CreateListingBody,UpdateListingBody,SaveProfileBody,GetProfileResponse } from "@workspace/api-zod";
 import { auth,userId } from "../middlewares/auth";
-import { blocked,createListingOnce,fail,listing,loadListing,transaction } from "../lib/marketplace";
+import { blocked,createListingOnce,fail,listing,loadListing,lockListingUploads,transaction } from "../lib/marketplace";
 import { ObjectStorageService } from "../lib/objectStorage";
 
 const router:IRouter=Router();
@@ -91,6 +91,7 @@ router.put("/listings/:id",auth,async(req,res)=>{
     if(l.status!=="active") fail(409,"Only an active dress can be edited");
     const r=await c.query("SELECT 1 FROM kemis_matches WHERE (dress_a=$1 OR dress_b=$1) AND status IN ('matched','proposed','accepted')",[l.id]);
     if(r.rowCount) fail(409,"Cancel open exchanges before changing this dress");
+    await lockListingUploads(c,uid,b.photos);
     await c.query("UPDATE kemis_listings SET data=$2 WHERE id=$1",[l.id,JSON.stringify(b)]);
     await c.query("DELETE FROM kemis_swipes WHERE offered_id=$1 OR target_id=$1",[l.id]);
   });
