@@ -5,3 +5,4 @@
 - [Expo preview environment](expo-preview-environment.md) — a missing native DevTools library and registry release-age checks can be non-blocking in Expo preview.
 - [Authentication methods](authentication-methods.md) — offer email, phone, and Google only when each method is genuinely operational; never simulate SMS verification.
 - [OpenAPI code generation](openapi-codegen.md) — use distinct component names for generated response schemas and preserve pnpm's parent-relative dependency resolution in bundled tests.
+- [Wub Tibeb white-labeling](wub-tibeb-white-labeling.md) — the published Replit badge is host-injected; remove it through publishing settings or a hosting change, not app CSS.

@@ -6,6 +6,7 @@ import { logger } from "./lib/logger";
 import { clerkMiddleware } from "@clerk/express";
 import { publishableKeyFromHost } from "@clerk/shared/keys";
 import { CLERK_PROXY_PATH, clerkProxyMiddleware, getClerkProxyHost } from "./middlewares/clerkProxyMiddleware";
+import { databaseUnavailableResponse } from "./lib/database-errors";
 import { MarketError } from "./lib/marketplace";
 import type { Request, Response, NextFunction } from "express";
 
@@ -52,6 +53,12 @@ app.use("/api", router);
 app.use((err: any, req: Request,res: Response,_next: NextFunction) => {
   if(err?.name==="ZodError") {res.status(400).json({error:"Invalid input",details:err.issues});return;}
   if(err instanceof MarketError) {res.status(err.status).json({error:err.message});return;}
+  const unavailable = databaseUnavailableResponse(err);
+  if (unavailable) {
+    req.log.error({ err, databaseUnavailable: true }, "Database unavailable");
+    res.status(unavailable.status).json(unavailable.body);
+    return;
+  }
   req.log.error({err},"Request failed");
   res.status(500).json({error:"Something went wrong. Please try again."});
 });

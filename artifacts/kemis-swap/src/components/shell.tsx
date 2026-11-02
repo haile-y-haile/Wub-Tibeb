@@ -152,7 +152,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <Show when="signed-in">
         <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-border bg-card/95 backdrop-blur md:hidden" aria-label={t("mainNavigation")} style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
           <div className="tibeb-thin" aria-hidden />
-          <div className="flex">
+          <div className="mobile-nav-content flex">
             {nav.map((n) => {
               const I = n.icon; const a = active(n.href);
               return (

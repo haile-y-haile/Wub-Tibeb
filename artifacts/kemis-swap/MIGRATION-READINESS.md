@@ -86,6 +86,14 @@ Replit's published documentation consulted on November 2, 2026 describes usage-b
 
 These figures and limits can change. Verify them in the current Replit billing pages before deciding whether to retain Replit services. Cloudflare Pages, Clerk, the chosen Node host, PostgreSQL, and object storage each have separate free-tier quotas and terms; an all-free, always-on production stack is not guaranteed.
 
+## White-label hosting badge and low-cost migration path
+
+- The live website response currently includes a hosting-injected `i.replit.com/script.js` badge script. It is not part of the app's React source, manifest, or artifact configuration, so CSS/source edits cannot reliably remove it.
+- Replit's current plan documentation says the badge cannot be removed on Starter; Core and Pro can manage it in Publishing settings. The active account plan is not exposed by the deployment metadata checked for this audit. Do not make a plan change without the owner.
+- A no-cost Cloudflare-native path is possible only after engineering work: keep the existing Cloudflare-managed domain and Clerk tenant, host the static Vite build on Pages, port the Express API to a Workers-compatible handler, route `/api/*` through the same origin, move PostgreSQL to an externally reachable PostgreSQL service, and move private photo objects to R2 (or equivalent). Verify quotas, connection behavior, and object-storage costs first; zero-cost always-on operation is not guaranteed.
+- Lower-risk path: keep the current Express API shape on a low-cost Node host, use a managed PostgreSQL service and private object storage, and let Cloudflare route the existing domain's `/api/*` path to the API while serving the web build. This avoids a full Express-to-Workers rewrite but may require a paid host/database/storage plan.
+- For either path, use staging first; take encrypted database and object backups; compare row counts and photo checksums; retain the original services and data until login, uploads, listings, exact-garment matching, messaging, and handoff flows pass; then cut over only with owner approval. Do not reset or delete the existing database or storage during migration.
+
 References:
 
 - Replit deployments: https://docs.replit.com/learn/projects-and-artifacts/replit-deployments

@@ -167,6 +167,10 @@ export default function Discover() {
   const emptyTitle = f.compatible && !prefsMissing ? t("emCompatTitle") : filtersOn ? t("emFilteredTitle") : t("deckEmpty");
   const emptySub = f.compatible && !prefsMissing ? t("emCompatSub") : filtersOn ? t("emFilteredSub") : t("deckEmptySub");
   const activeFilterCount = Object.keys(f).filter((k) => f[k as keyof GetListingsParams]).length;
+  const listingsErrorCode = (listings.error as { data?: { code?: string } } | null)?.data?.code;
+  const listingsErrorMessage = listingsErrorCode === "DATA_SERVICE_UNAVAILABLE"
+    ? t("dataUnavailable")
+    : listings.error ? errMsg(listings.error, t("error")) : undefined;
 
   const chip = (k: keyof GetListingsParams, opts: string[]) => (
     <div>
@@ -265,7 +269,7 @@ export default function Discover() {
       <MoreButton q={listings} />
       <div className="mt-4">
         {listings.isLoading ? (mode === "grid" ? <GridSkeleton /> : <div className="mx-auto aspect-[3/4] max-h-[62dvh] w-[calc(100%-2rem)] max-w-sm animate-pulse rounded-[28px] bg-secondary" />)
-          : listings.error ? <ErrorState onRetry={() => listings.refetch()} />
+          : listings.error ? <ErrorState message={listingsErrorMessage} onRetry={() => listings.refetch()} />
           : mode === "grid" ? (
             others.length === 0 ? <EmptyState title={emptyTitle} sub={emptySub} action={emptyAction} /> : (
               <>
