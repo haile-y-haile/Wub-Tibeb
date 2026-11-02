@@ -142,5 +142,5 @@ Publish updated application code to make these guides available on the shared li
 ## Website launch and migration notes
 
 - Source-only migration checklist: [`artifacts/kemis-swap/MIGRATION-READINESS.md`](artifacts/kemis-swap/MIGRATION-READINESS.md).
-- Public website policy pages are `/privacy`, `/terms`, `/safety`, and `/contact`. Their content is explicitly marked as a legal-review draft; missing operator identity, verified privacy/support contact, age policy, and retention rules are launch blockers.
+- Public website policy pages are `/privacy`, `/terms`, `/safety`, and `/contact`. The official public support/privacy contact is `hello@wubtibeb.com`. Policy content remains explicitly marked as a legal-review draft; operator identity, age policy, and retention rules still need completion.
 - `public/ads.txt` contains only a comment because no verified advertising seller/publisher is authorized. Do not insert a publisher ID or display ads before approval.

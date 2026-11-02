@@ -16,6 +16,7 @@ const COPY = {
     transcript: "Step by step", min: "min", sec: "s", mb: "MB", size: "Download size",
     error: "This clip could not load. Check your connection and try again.", retry: "Try again",
     open: "Open the clip file", rules: "The rules, plainly",
+    support: "Need help? Email Wub Tibeb support:",
     r: [
       "A dress for a dress. No money, no fees.",
       "You like one specific dress while offering one of your own active dresses.",
@@ -32,6 +33,7 @@ const COPY = {
     transcript: "ደረጃ በደረጃ", min: "ደቂቃ", sec: "ሰከንድ", mb: "ሜ.ባ", size: "የማውረጃ መጠን",
     error: "ቪዲዮው መጫን አልቻለም። ግንኙነትዎን አረጋግጠው እንደገና ይሞክሩ።", retry: "እንደገና ሞክር",
     open: "የቪዲዮ ፋይሉን ክፈት", rules: "ደንቦቹ በግልጽ",
+    support: "እርዳታ ይፈልጋሉ? ለውብ ጥበብ ድጋፍ ኢሜይል ይላኩ፦",
     r: [
       "ቀሚስ ለቀሚስ። ገንዘብ የለም፣ ክፍያ የለም።",
       "ከራስዎ ንቁ ቀሚሶች አንዱን አቅርበው አንድ የተወሰነ ቀሚስ ይወዳሉ።",
@@ -167,6 +169,10 @@ export default function HowItWorks() {
             </ul>
             <div className="mt-4"><SafetyNote /></div>
           </div>
+          <p className="mt-4 rounded-2xl border border-border bg-card p-4 text-sm leading-relaxed">
+            {c.support}{" "}
+            <a href="mailto:hello@wubtibeb.com" className="font-semibold text-primary underline underline-offset-4">hello@wubtibeb.com</a>
+          </p>
         </div>
       </section>
     </div>

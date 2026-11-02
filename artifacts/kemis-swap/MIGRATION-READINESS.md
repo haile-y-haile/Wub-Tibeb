@@ -96,7 +96,7 @@ References:
 
 ## Owner decisions still required
 
-- Provide the legal operator/business name, US state, verified support/privacy address, and approved age-eligibility policy.
+- Confirm that the official public support/privacy inbox hello@wubtibeb.com is controlled and monitored; provide the legal operator/business name, US state, and approved age-eligibility policy.
 - Have qualified counsel review the privacy notice, terms, cross-border data practices, and consumer-protection obligations for a US-operated service used in Ethiopia.
 - Confirm production migration state and authorize any production export/cutover separately.
 - Select destination Node, PostgreSQL, and private object-storage providers and verify their costs and retention settings.

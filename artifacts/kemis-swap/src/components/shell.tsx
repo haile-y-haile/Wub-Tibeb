@@ -146,6 +146,7 @@ export function Shell({ children }: { children: ReactNode }) {
           <Link href="/how-it-works" className="font-semibold text-primary underline underline-offset-4" data-testid="link-footer-how">{t("howItWorks")}</Link>
           {legalLinks.map((item) => <Link key={item.href} href={item.href} className="underline underline-offset-4" data-testid={`link-footer-${item.href.slice(1)}`}>{item.label}</Link>)}
         </nav>
+        <a href="mailto:hello@wubtibeb.com" aria-label={lang === "am" ? "የውብ ጥበብ ድጋፍ ኢሜይል hello@wubtibeb.com" : "Email Wub Tibeb support at hello@wubtibeb.com"} className="font-semibold text-primary underline underline-offset-4" data-testid="link-footer-support">hello@wubtibeb.com</a>
         <span className="font-display italic">{t("tagline")}</span>
       </footer>
       <Show when="signed-in">

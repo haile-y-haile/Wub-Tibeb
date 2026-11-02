@@ -129,11 +129,16 @@ export function MeasureTable({ m }: { m: Listing["measurements"] }) {
 }
 
 export function SafetyNote() {
-  const { t } = useI18n();
+  const { t, lang } = useI18n();
   return (
     <p className="flex gap-2 rounded-xl bg-secondary/70 p-3 text-xs leading-relaxed text-secondary-foreground tibeb-edge">
       <Sparkles className="mt-0.5 h-3.5 w-3.5 shrink-0 text-accent" aria-hidden />
-      {t("safety")}
+      <span>
+        {t("safety")}{" "}
+        <a href="mailto:hello@wubtibeb.com" className="font-semibold text-primary underline underline-offset-4" aria-label={lang === "am" ? "የድጋፍ ኢሜይል hello@wubtibeb.com" : "Email support at hello@wubtibeb.com"}>
+          hello@wubtibeb.com
+        </a>
+      </span>
     </p>
   );
 }

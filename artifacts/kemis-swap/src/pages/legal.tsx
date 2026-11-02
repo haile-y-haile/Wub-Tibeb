@@ -1,10 +1,21 @@
 import { Link, useLocation } from "wouter";
+import { Fragment } from "react";
 import { ArrowLeft, ExternalLink, ShieldCheck } from "lucide-react";
 import { useI18n, type Lang } from "@/lib/i18n";
 import { Button } from "@/components/ui/button";
 
 type Section = { heading: string; paragraphs?: string[]; bullets?: string[] };
 type LegalDocument = { title: string; intro: string; sections: Section[] };
+const SUPPORT_EMAIL = "hello@wubtibeb.com";
+
+function renderPublicContactLinks(text: string) {
+  return text.split(SUPPORT_EMAIL).map((part, index) => (
+    <Fragment key={index}>
+      {index > 0 && <a href={`mailto:${SUPPORT_EMAIL}`} className="font-semibold text-primary underline underline-offset-4">{SUPPORT_EMAIL}</a>}
+      {part}
+    </Fragment>
+  ));
+}
 
 const documents: Record<Lang, Record<string, LegalDocument>> = {
   en: {
@@ -20,14 +31,14 @@ const documents: Record<Lang, Record<string, LegalDocument>> = {
         { heading: "Retention and member choices", paragraphs: ["Members can edit profile details and manage or archive their own listings. The app does not currently provide self-service account deletion or a published deletion/retention schedule. The operator must establish a verified privacy-request channel and retention rules before public launch."] },
         { heading: "Children and age eligibility", paragraphs: ["The service has no implemented age gate and the operator has not established an age-eligibility policy. Do not make the service available to minors until the operator and counsel decide the applicable age and consent requirements."] },
         { heading: "Cross-border privacy review", paragraphs: ["The service is operated from the United States for members in Ethiopia. Applicable US and Ethiopian privacy, consumer-protection, and cross-border data rules must be reviewed by qualified counsel. No storage location or legal jurisdiction is promised by this draft."] },
-        { heading: "Privacy requests", paragraphs: ["There is no verified public privacy or support email configured in the app. The in-app Report control is for safety and listing concerns; it is not a complete privacy-request channel. Add a verified operator contact and account-data request process before public launch."] },
+        { heading: "Privacy requests", paragraphs: ["For privacy or account-data requests, email hello@wubtibeb.com. Use the in-app Report control for safety and listing concerns; reports are not a complete privacy-request channel. The app does not currently offer self-service account deletion. Do not email passwords or unnecessary sensitive information."] },
       ],
     },
     terms: {
       title: "Terms of service",
       intro: "Draft participation terms for a direct garment-for-garment exchange community.",
       sections: [
-        { heading: "Draft status and operator", paragraphs: ["Wub Tibeb is a US-operated service for people in Ethiopia. The legal operator name, US state, governing law, dispute venue, and formal contact details have not been supplied. These terms require review by qualified US and Ethiopian counsel before launch."] },
+        { heading: "Draft status and operator", paragraphs: ["Wub Tibeb is a US-operated service for people in Ethiopia. The public support contact is hello@wubtibeb.com. The legal operator name, US state, governing law, and dispute venue have not been supplied. These terms require review by qualified US and Ethiopian counsel before launch."] },
         { heading: "Eligibility and accounts", paragraphs: ["Sign-in currently uses email or Google through Clerk; phone sign-in is not active. Keep your account credentials secure and provide accurate profile information. The service has no implemented age gate or approved minimum-age policy, so the operator must set an age rule before accepting public registrations."] },
         { heading: "Listings and member conduct", paragraphs: ["Only traditional Habesha kemis intended for holiday or cultural wear belong on this service. List dresses you have the right to offer, use accurate photos and measurements, and describe condition and known issues honestly. Do not post another person's private information, counterfeit claims, harassment, threats, or unsafe requests."] },
         { heading: "How a swap works", paragraphs: ["A like is tied to one specific dress offered for one specific dress. A match occurs only when both members express reciprocal interest in those same two garments. A match is not a completed exchange. Members propose a handoff plan, each accepts the current plan, and each confirms completion only after the physical exchange has happened."] },
@@ -43,18 +54,18 @@ const documents: Record<Lang, Record<string, LegalDocument>> = {
       sections: [
         { heading: "Before you agree", paragraphs: ["Read the listing carefully. Ask about condition, fit, measurements, and any repair or stain. Confirm which two exact dresses are being exchanged and agree to the current proposal in the match conversation. A match alone is not an agreement to hand over a garment."] },
         { heading: "Choose a safer handoff", bullets: ["Meet during daylight in a busy public place; do not meet at a private home or isolated location.", "Tell someone you trust where you are going and consider bringing them.", "Keep communication in the app until you are comfortable. Do not share your home address, passwords, financial details, or identity documents.", "Inspect and try on garments only if you feel safe and have agreed to do so. Do not hand over your dress until you are ready.", "Do not pay a deposit or accept a request for money; the app is for garment-for-garment swaps, not payments."] },
-        { heading: "Confirming or reporting", paragraphs: ["Confirm completion only after the physical exchange has happened. If one member has already confirmed a handoff and there is a problem, the exchange cannot be safely cancelled in the app; use Report and contact a moderator instead. Blocking may limit contact but does not recover a garment or replace local emergency help."] },
-        { heading: "Use reporting and blocking", paragraphs: ["Use the Report or Block controls on a listing or match when you encounter fraud, harassment, unsafe behavior, or a serious mismatch. Include only relevant details; do not put private addresses or sensitive information in a public listing. The service is not an emergency-response service. If someone is in immediate danger, contact local emergency services."] },
+        { heading: "Confirming or reporting", paragraphs: ["Confirm completion only after the physical exchange has happened. If one member has already confirmed a handoff and there is a problem, the exchange cannot be safely cancelled in the app; use Report, contact a moderator, or email hello@wubtibeb.com for support. Blocking may limit contact but does not recover a garment or replace local emergency help."] },
+        { heading: "Use reporting and blocking", paragraphs: ["Use the Report or Block controls on a listing or match when you encounter fraud, harassment, unsafe behavior, or a serious mismatch. For non-emergency support, email hello@wubtibeb.com. Include only relevant details; do not put private addresses or sensitive information in a public listing or email. The service is not an emergency-response service. If someone is in immediate danger, contact local emergency services."] },
         { heading: "Limits", paragraphs: ["Wub Tibeb cannot verify a member's identity, inspect a dress in person, supervise a meeting, or guarantee that a swap will be completed. Safety tools help document and limit contact; they cannot eliminate offline risk."] },
       ],
     },
     contact: {
       title: "Contact and help",
-      intro: "Use the in-app controls for safety issues. Public operator contact details are not yet configured.",
+      intro: "For support or privacy requests, email hello@wubtibeb.com. Use in-app controls for listing or member safety reports; email is not an emergency service.",
       sections: [
         { heading: "Report a listing or member", paragraphs: ["Sign in, open the listing or matched exchange, and choose Report. Use Block if you need to stop contact. Reports are sent to the app's moderation queue; they are not monitored emergency messages."] },
-        { heading: "Account and privacy requests", paragraphs: ["The app currently has no verified public support/privacy email, contact form, or self-service account deletion. Do not send sensitive information through a listing or message. The operator must publish a verified contact method and a data-request process before public launch."] },
-        { heading: "Operator details still needed", bullets: ["Verified support and privacy contact address.", "Legal operator or business name and US state.", "A reviewed age-eligibility and account-deletion process.", "A response and retention policy for reports and privacy requests."] },
+        { heading: "Account and privacy requests", paragraphs: ["For support, privacy, or account-data requests, email hello@wubtibeb.com. The app does not currently offer a contact form or self-service account deletion. Do not email passwords or unnecessary sensitive information."] },
+        { heading: "Operator details still needed", bullets: ["Legal operator or business name and US state.", "A reviewed age-eligibility and account-deletion process.", "A response and retention policy for reports and privacy requests."] },
         { heading: "Immediate safety", paragraphs: ["Wub Tibeb is not an emergency service. If someone faces immediate danger, contact local emergency services. For a non-emergency exchange concern, use the in-app Report control."] },
       ],
     },
@@ -72,14 +83,14 @@ const documents: Record<Lang, Record<string, LegalDocument>> = {
         { heading: "ማቆያና የአባላት ምርጫ", paragraphs: ["አባላት የመገለጫ መረጃን ማሻሻል፣ የራሳቸውን ቀሚሶች ማስተዳደር ወይም ከንቁ ዝርዝር ማውጣት ይችላሉ። አሁን የመለያ ራስ-ሰር ስረዛ ወይም የተገለጸ የመረጃ ማጥፊያና ማቆያ ጊዜ የለም። ኦፕሬተሩ ከሕዝብ ማስጀመር በፊት የተረጋገጠ የግላዊነት ጥያቄ መቀበያና የማቆያ ደንብ ማዘጋጀት አለበት።"] },
         { heading: "ሕፃናትና የዕድሜ መስፈርት", paragraphs: ["አገልግሎቱ የዕድሜ ማረጋገጫ የለውም፤ ኦፕሬተሩም የዕድሜ መስፈርት አልወሰነም። ተፈጻሚ የሆኑ የዕድሜና የወላጅ ፈቃድ መስፈርቶች በኦፕሬተሩና በሕግ አማካሪ እስኪወሰኑ ድረስ አገልግሎቱን ለታዳጊዎች አያቅርቡ።"] },
         { heading: "ድንበር ተሻጋሪ የግላዊነት ግምገማ", paragraphs: ["አገልግሎቱ ከአሜሪካ ሆኖ በኢትዮጵያ ላሉ አባላት ይሰራል። ተፈጻሚ የሆኑ የአሜሪካና የኢትዮጵያ የግላዊነት፣ የሸማቾች ጥበቃና ድንበር ተሻጋሪ ውሂብ ሕጎች በባለሙያ መገምገም አለባቸው። ይህ ረቂቅ የማከማቻ ቦታ ወይም የሕግ ሥልጣን ቦታ አይወስንም።"] },
-        { heading: "የግላዊነት ጥያቄዎች", paragraphs: ["በመተግበሪያው ውስጥ የተረጋገጠ የሕዝብ ግላዊነት ወይም ድጋፍ ኢሜይል የለም። የሪፖርት መቆጣጠሪያው ለደህንነትና ለቀሚስ ጉዳዮች ነው፤ ሙሉ የግላዊነት ጥያቄ መቀበያ አይደለም። ከሕዝብ ማስጀመር በፊት የተረጋገጠ የኦፕሬተር አድራሻና የዳታ ጥያቄ ሂደት ያክሉ።"] },
+        { heading: "የግላዊነት ጥያቄዎች", paragraphs: ["የግላዊነት ወይም የመለያ መረጃ ጥያቄ ካለ hello@wubtibeb.com ላይ ኢሜይል ይላኩ። የሪፖርት መቆጣጠሪያውን ለደህንነትና ለቀሚስ ጉዳዮች ይጠቀሙ፤ ሪፖርቶች ሙሉ የግላዊነት ጥያቄ መቀበያ አይደሉም። መተግበሪያው በራስ አገልግሎት መለያን የማጥፋት አማራጭ የለውም። የይለፍ ቃል ወይም አላስፈላጊ ስሱ መረጃ በኢሜይል አይላኩ።"] },
       ],
     },
     terms: {
       title: "የአጠቃቀም ውሎች",
       intro: "በቀሚስ ለቀሚስ ልውውጥ ማህበረሰብ ውስጥ ለመሳተፍ የተዘጋጀ ረቂቅ ውል።",
       sections: [
-        { heading: "የረቂቁ ሁኔታና ኦፕሬተር", paragraphs: ["ውብ ጥበብ በአሜሪካ ሆኖ በኢትዮጵያ ላሉ ሰዎች የሚያገለግል ነው። የሕጋዊ ኦፕሬተሩ ስም፣ የአሜሪካ ግዛት፣ ተፈጻሚ ሕግ፣ የክርክር ቦታና የይፋ እውቂያ መረጃ አልተሰጡም። ከማስጀመር በፊት ይህ ውል በአሜሪካና በኢትዮጵያ ባለሙያ ጠበቆች መገምገም አለበት።"] },
+        { heading: "የረቂቁ ሁኔታና ኦፕሬተር", paragraphs: ["ውብ ጥበብ በአሜሪካ ሆኖ በኢትዮጵያ ላሉ ሰዎች የሚያገለግል ነው። የሕዝብ ድጋፍ እውቂያ hello@wubtibeb.com ነው። የሕጋዊ ኦፕሬተሩ ስም፣ የአሜሪካ ግዛት፣ ተፈጻሚ ሕግና የክርክር ቦታ አልተሰጡም። ከማስጀመር በፊት ይህ ውል በአሜሪካና በኢትዮጵያ ባለሙያ ጠበቆች መገምገም አለበት።"] },
         { heading: "ብቁነትና መለያዎች", paragraphs: ["አሁን መግቢያ በኢሜይል ወይም በGoogle በClerk ይሰራል፤ የስልክ መግቢያ አልነቃም። የመለያዎን የመግቢያ መረጃ ደህንነቱን ይጠብቁ፤ ትክክለኛ የመገለጫ መረጃ ያቅርቡ። የዕድሜ ማረጋገጫና የተፈቀደ ዝቅተኛ ዕድሜ መስፈርት የለም፤ የሕዝብ ምዝገባን ከመክፈት በፊት ኦፕሬተሩ የዕድሜ ደንብ መወሰን አለበት።"] },
         { heading: "ማስታወቂያዎችና የአባላት ባህሪ", paragraphs: ["በዚህ አገልግሎት የበዓልና የባህል ልብስ የሆኑ ባህላዊ የሐበሻ ቀሚሶችን ብቻ ያቅርቡ። ለመስጠት መብት ያለዎትን ቀሚስ ይዘርዝሩ፤ ትክክለኛ ፎቶና ልኬት ይጠቀሙ፤ ሁኔታውንና የሚታወቁ ጉድለቶችን በሐቀኝነት ይግለጹ። የሌላ ሰውን የግል መረጃ፣ የሐሰት የብራንድ ጥያቄዎች፣ ማስጨነቅ፣ ማስፈራራት ወይም አደገኛ ጥያቄዎችን አያቅርቡ።"] },
         { heading: "ልውውጡ እንዴት ይሰራል?", paragraphs: ["መውደድ አንድ የተወሰነ ቀሚስን ለአንድ ሌላ የተወሰነ ቀሚስ ማቅረብ ነው። ሁለቱም አባላት በዚያው ሁለት ቀሚሶች ላይ ተቃራኒ ፍላጎት ሲያሳዩ ብቻ ግጥሚያ ይፈጠራል። ግጥሚያ ልውውጡ ተጠናቋል ማለት አይደለም። አባላት የርክክብ እቅድ ያቀርባሉ፣ እያንዳንዱም የአሁኑን እቅድ ይቀበላል፤ ቀሚሶቹ በእውነት ከተለዋወጡ በኋላ ብቻ እያንዳንዱ መጠናቀቁን ያረጋግጣል።"] },
@@ -95,18 +106,18 @@ const documents: Record<Lang, Record<string, LegalDocument>> = {
       sections: [
         { heading: "ከመስማማትዎ በፊት", paragraphs: ["ማስታወቂያውን በጥንቃቄ ያንብቡ። ስለ ሁኔታ፣ ተስማሚነት፣ ልኬት፣ ጥገና ወይም እድፍ ይጠይቁ። የሚለዋወጡትን ሁለት ትክክለኛ ቀሚሶች ያረጋግጡ፤ በግጥሚያው ውይይት የአሁኑን የርክክብ እቅድ ይስማሙ። ግጥሚያ ብቻውን ቀሚስ ለማስረከብ ስምምነት አይደለም።"] },
         { heading: "ደህንነቱ የተሻለ ርክክብ ይምረጡ", bullets: ["በቀን በሕዝብ በሚበዛበት ቦታ ይገናኙ፤ በግል ቤት ወይም በብቸኛ ቦታ አይገናኙ።", "የሚሄዱበትን ቦታ ለሚያምኑት ሰው ይንገሩ፤ ከቻሉም አብሮ ይውሰዱ።", "እስኪመችዎ ድረስ ውይይትን በመተግበሪያው ያቆዩ። የቤት አድራሻ፣ የይለፍ ቃል፣ የገንዘብ መረጃ ወይም መታወቂያ አያጋሩ።", "በደህና እንደሚሰማዎትና ከተስማሙ ብቻ ቀሚሱን ይመርምሩ ወይም ይለብሱ። ዝግጁ ካልሆኑ ቀሚስዎን አያስረክቡ።", "ቅድመ ክፍያ አይላኩ፤ ገንዘብም አይቀበሉ። መተግበሪያው ለቀሚስ ልውውጥ ነው፣ ለክፍያ አይደለም።"] },
-        { heading: "ማረጋገጥ ወይም ሪፖርት ማድረግ", paragraphs: ["ቀሚሶቹ በእውነት ከተለዋወጡ በኋላ ብቻ መጠናቀቁን ያረጋግጡ። አንድ አባል ርክክብ አረጋግጦ ችግር ከተፈጠረ፣ በመተግበሪያው በደህና መሰረዝ አይቻልም፤ ሪፖርት ያድርጉና ተቆጣጣሪን ያግኙ። ማገድ ግንኙነትን ሊገድብ ይችላል፤ ቀሚስን አያስመልስም፣ የአካባቢ የአደጋ ጊዜ እርዳታንም አይተካም።"] },
-        { heading: "ሪፖርትና ማገድን ይጠቀሙ", paragraphs: ["ማጭበርበር፣ ማስጨነቅ፣ አደገኛ ባህሪ ወይም ከባድ የልዩነት ችግር ሲያጋጥም በቀሚስ ወይም በግጥሚያ ላይ ያሉትን የሪፖርትና የማገድ መቆጣጠሪያዎች ይጠቀሙ። አስፈላጊውን ብቻ ያካትቱ፤ የግል አድራሻን ወይም ስሱ መረጃን በሕዝብ ማስታወቂያ ውስጥ አያስገቡ። አገልግሎቱ የአደጋ ጊዜ ምላሽ አይሰጥም። አንድ ሰው አሁን በአደጋ ላይ ከሆነ፣ የአካባቢውን የአደጋ ጊዜ አገልግሎት ያግኙ።"] },
+        { heading: "ማረጋገጥ ወይም ሪፖርት ማድረግ", paragraphs: ["ቀሚሶቹ በእውነት ከተለዋወጡ በኋላ ብቻ መጠናቀቁን ያረጋግጡ። አንድ አባል ርክክብ አረጋግጦ ችግር ከተፈጠረ፣ በመተግበሪያው በደህና መሰረዝ አይቻልም፤ ሪፖርት ያድርጉ፣ ተቆጣጣሪን ያግኙ ወይም hello@wubtibeb.com ላይ ኢሜይል ይላኩ። ማገድ ግንኙነትን ሊገድብ ይችላል፤ ቀሚስን አያስመልስም፣ የአካባቢ የአደጋ ጊዜ እርዳታንም አይተካም።"] },
+        { heading: "ሪፖርትና ማገድን ይጠቀሙ", paragraphs: ["ማጭበርበር፣ ማስጨነቅ፣ አደገኛ ባህሪ ወይም ከባድ የልዩነት ችግር ሲያጋጥም በቀሚስ ወይም በግጥሚያ ላይ ያሉትን የሪፖርትና የማገድ መቆጣጠሪያዎች ይጠቀሙ። ለአስቸኳይ ላልሆነ እርዳታ hello@wubtibeb.com ላይ ኢሜይል ይላኩ። አስፈላጊውን ብቻ ያካትቱ፤ የግል አድራሻን ወይም ስሱ መረጃን በሕዝብ ማስታወቂያ ወይም በኢሜይል አያካትቱ። አገልግሎቱ የአደጋ ጊዜ ምላሽ አይሰጥም። አንድ ሰው አሁን በአደጋ ላይ ከሆነ፣ የአካባቢውን የአደጋ ጊዜ አገልግሎት ያግኙ።"] },
         { heading: "ገደቦች", paragraphs: ["ውብ ጥበብ የአባልን ማንነት ማረጋገጥ፣ ቀሚስን በአካል መመርመር፣ ስብሰባን መቆጣጠር ወይም ልውውጥ እንደሚፈጸም ዋስትና መስጠት አይችልም። የደህንነት መቆጣጠሪያዎች ጉዳይን ለማሳወቅና ግንኙነትን ለመገደብ ይረዳሉ፤ ከመስመር ውጭ አደጋን ሙሉ በሙሉ አያስወግዱም።"] },
       ],
     },
     contact: {
       title: "እውቂያና እርዳታ",
-      intro: "ለደህንነት ጉዳዮች በመተግበሪያው ያሉትን መቆጣጠሪያዎች ይጠቀሙ። የኦፕሬተር የይፋ እውቂያ መረጃ ገና አልተዘጋጀም።",
+      intro: "ለእርዳታ ወይም ለግላዊነት ጥያቄ hello@wubtibeb.com ላይ ኢሜይል ይላኩ። ለቀሚስ ወይም ለአባል ደህንነት ሪፖርት የመተግበሪያውን መቆጣጠሪያ ይጠቀሙ፤ ኢሜይሉ የአደጋ ጊዜ አገልግሎት አይደለም።",
       sections: [
         { heading: "ቀሚስን ወይም አባልን ሪፖርት ያድርጉ", paragraphs: ["ይግቡ፣ ቀሚሱን ወይም የተገጣጠመውን ልውውጥ ይክፈቱና ሪፖርት ይምረጡ። ግንኙነትን ማቆም ካስፈለገ አባሉን ያግዱ። ሪፖርቶች ወደ የመተግበሪያው ቁጥጥር ዝርዝር ይሄዳሉ፤ የአደጋ ጊዜ መልዕክቶች አይደሉም።"] },
-        { heading: "የመለያና የግላዊነት ጥያቄዎች", paragraphs: ["አሁን የተረጋገጠ የሕዝብ ድጋፍ/ግላዊነት ኢሜይል፣ የእውቂያ ቅጽ ወይም የመለያ ራስ-ሰር ስረዛ የለም። ስሱ መረጃን በማስታወቂያ ወይም በመልዕክት አይላኩ። ኦፕሬተሩ ከሕዝብ ማስጀመር በፊት የተረጋገጠ እውቂያና የመረጃ ጥያቄ ሂደት ማቅረብ አለበት።"] },
-        { heading: "ገና የሚያስፈልጉ የኦፕሬተር መረጃዎች", bullets: ["የተረጋገጠ የድጋፍና የግላዊነት እውቂያ አድራሻ።", "የሕጋዊ ኦፕሬተር ወይም የድርጅት ስምና የአሜሪካ ግዛት።", "የተገመገመ የዕድሜ መስፈርትና የመለያ ስረዛ ሂደት።", "ለሪፖርቶችና ለግላዊነት ጥያቄዎች የምላሽና የማቆያ ደንብ።"] },
+        { heading: "የመለያና የግላዊነት ጥያቄዎች", paragraphs: ["ለእርዳታ፣ ለግላዊነት ወይም ለመለያ መረጃ ጥያቄ hello@wubtibeb.com ላይ ኢሜይል ይላኩ። መተግበሪያው የእውቂያ ቅጽ ወይም በራስ አገልግሎት መለያን የማጥፋት አማራጭ የለውም። የይለፍ ቃል ወይም አላስፈላጊ ስሱ መረጃ በኢሜይል አይላኩ።"] },
+        { heading: "ገና የሚያስፈልጉ የኦፕሬተር መረጃዎች", bullets: ["የሕጋዊ ኦፕሬተር ወይም የድርጅት ስምና የአሜሪካ ግዛት።", "የተገመገመ የዕድሜ መስፈርትና የመለያ ስረዛ ሂደት።", "ለሪፖርቶችና ለግላዊነት ጥያቄዎች የምላሽና የማቆያ ደንብ።"] },
         { heading: "አስቸኳይ ደህንነት", paragraphs: ["ውብ ጥበብ የአደጋ ጊዜ አገልግሎት አይደለም። አንድ ሰው አሁን በአደጋ ላይ ከሆነ፣ የአካባቢውን የአደጋ ጊዜ አገልግሎት ያግኙ። አስቸኳይ ላልሆነ የልውውጥ ችግር የመተግበሪያውን ሪፖርት ይጠቀሙ።"] },
       ],
     },
@@ -119,8 +130,8 @@ export function LegalPage() {
   const slug = location.replace(/\/+$/, "").split("/").pop() ?? "privacy";
   const page = documents[lang][slug] ?? documents[lang].privacy;
   const reviewNotice = lang === "am"
-    ? "የሕግ ምክር አይደለም፤ ከማስጀመር በፊት በአሜሪካና በኢትዮጵያ የሚሰሩ ባለሙያ ጠበቆች ይገምግሙት። የሕጋዊ ኦፕሬተር ስምና ግዛት፣ የተረጋገጠ የድጋፍ ኢሜይል፣ የዕድሜ ደንብ፣ የመረጃ ማቆያና ተፈጻሚ ሕግ ገና መወሰን አለባቸው።"
-    : "Not legal advice. Have qualified US and Ethiopian counsel review this before launch. The operator's legal name and state, verified support email, age rule, data-retention policy, and governing law still need to be established.";
+    ? "የሕግ ምክር አይደለም፤ ከማስጀመር በፊት በአሜሪካና በኢትዮጵያ የሚሰሩ ባለሙያ ጠበቆች ይገምግሙት። የሕዝብ ድጋፍ ኢሜይል hello@wubtibeb.com ነው። የሕጋዊ ኦፕሬተር ስምና ግዛት፣ የዕድሜ ደንብ፣ የመረጃ ማቆያና ተፈጻሚ ሕግ ገና መወሰን አለባቸው።"
+    : "Not legal advice. Have qualified US and Ethiopian counsel review this before launch. Public support email: hello@wubtibeb.com. The operator's legal name and state, age rule, data-retention policy, and governing law still need to be established.";
 
   return (
     <article className="mx-auto max-w-3xl px-4 py-8 sm:py-12" data-testid={`legal-page-${slug}`}>
@@ -129,19 +140,19 @@ export function LegalPage() {
       </Link>
       <div className="mt-6 rounded-2xl border border-accent bg-secondary/70 p-4 text-sm leading-relaxed text-secondary-foreground" role="note" data-testid="notice-legal-review">
         <div className="mb-1 flex items-center gap-2 font-bold"><ShieldCheck className="h-4 w-4" aria-hidden />{lang === "am" ? "ለሕግ ግምገማ የተዘጋጀ ረቂቅ" : "Draft for legal review"}</div>
-        {reviewNotice}
+         {renderPublicContactLinks(reviewNotice)}
       </div>
       <header className="mb-8 mt-8">
         <p className="mb-2 text-xs font-bold uppercase tracking-[0.14em] text-accent-foreground">{lang === "am" ? "ውብ ጥበብ · የአባላት መረጃ" : "Wub Tibeb · Member information"}</p>
         <h1 className="font-display text-3xl font-semibold text-primary sm:text-4xl" lang={lang}>{page.title}</h1>
-        <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">{page.intro}</p>
+         <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">{renderPublicContactLinks(page.intro)}</p>
       </header>
       <div className="space-y-7">
         {page.sections.map((section) => (
           <section key={section.heading} className="rounded-2xl border border-border bg-card p-4 shadow-sm sm:p-6">
             <h2 className="font-display text-xl font-semibold text-primary" lang={lang}>{section.heading}</h2>
             <div className="mt-3 space-y-3 text-sm leading-7 text-foreground/90 sm:text-base">
-              {(section.paragraphs ?? []).map((paragraph, index) => <p key={index}>{paragraph}</p>)}
+              {(section.paragraphs ?? []).map((paragraph, index) => <p key={index}>{renderPublicContactLinks(paragraph)}</p>)}
               {section.bullets && <ul className="list-disc space-y-2 pl-5">{section.bullets.map((item, index) => <li key={index}>{item}</li>)}</ul>}
             </div>
           </section>

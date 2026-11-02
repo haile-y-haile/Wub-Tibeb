@@ -181,12 +181,12 @@ function AppRoutes() {
       "/privacy": "የውብ ጥበብ የመለያ፣ የቀሚስ፣ የፎቶ፣ የመልዕክትና የልውውጥ መረጃ አጠቃቀም።",
       "/terms": "በውብ ጥበብ የቀሚስ ለቀሚስ ልውውጥ ማህበረሰብ የመሳተፍ ደንቦች።",
       "/safety": "በአካል የቀሚስ ርክክብን በደህንነት ለማዘጋጀት ምክሮች።",
-      "/contact": "ሪፖርት፣ ማገድና የውብ ጥበብ እውቂያ መረጃ።",
+      "/contact": "ሪፖርት፣ ማገድና hello@wubtibeb.com ላይ የውብ ጥበብን ማግኘት።",
     } : {
       "/privacy": "How Wub Tibeb uses account, listing, photo, message, and exchange information for its kemis swap community.",
       "/terms": "Participation terms for Wub Tibeb's direct Habesha kemis-for-kemis exchange community.",
       "/safety": "Practical advice for arranging a safe in-person Habesha kemis handoff.",
-      "/contact": "How to report a listing or member and the operator details still needed for support.",
+      "/contact": "How to report a listing or member and contact Wub Tibeb support at hello@wubtibeb.com.",
     };
     const description = legalDescriptions[location] ?? `${t("appName")}. ${t("tagline")} ${t("appDescription")}`;
     document.querySelector('link[rel="canonical"]')?.setAttribute("href", canonicalUrl);
