@@ -10,6 +10,11 @@ out-tsc
 
 # dependencies
 node_modules
+**/.dev.vars
+**/.env.cloudflare.local
+**/.env.production.local
+**/.env.local
+**/.wrangler/
 
 # IDEs and editors
 /.idea

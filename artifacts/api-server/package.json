@@ -6,8 +6,14 @@
   "scripts": {
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
+    "cloudflare:build": "pnpm --filter @workspace/kemis-swap run build:cloudflare && wrangler deploy --dry-run --config wrangler.toml --outdir dist/cloudflare",
+    "cloudflare:dev": "wrangler dev --config wrangler.toml",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test:cloudflare": "node --import tsx --test src/tests/cloudflare-worker.test.ts scripts/cloudflare-db-safety.test.mjs",
+    "db:staging:migrate": "node scripts/migrate-staging-schema.mjs",
+    "db:staging:export": "node scripts/export-staging-data.mjs",
+    "db:staging:import": "node scripts/import-staging-data.mjs",
     "test:exchange": "node scripts/run-script.mjs exchange",
     "test:retries": "node scripts/run-script.mjs retry-safety",
     "test:tutorials": "node scripts/run-script.mjs tutorial-media",
@@ -18,6 +24,7 @@
     "test:cleanup": "node scripts/run-script.mjs cleanup"
   },
   "dependencies": {
+    "@clerk/backend": "^3.26.5",
     "@clerk/express": "^2.1.80",
     "@clerk/shared": "^4.40.0",
     "@google-cloud/storage": "^8.4.0",
@@ -29,6 +36,7 @@
     "express": "^5.3.0",
     "google-auth-library": "^11.3.1",
     "http-proxy-middleware": "^4.2.0",
+    "pg": "^8.23.0",
     "pino": "^9.14.0",
     "pino-http": "^10.5.0",
     "zod": "catalog:"
@@ -38,9 +46,12 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "catalog:",
+    "@types/pg": "^8.23.1",
     "esbuild": "0.28.2",
     "esbuild-plugin-pino": "^2.3.3",
     "pino-pretty": "^13.1.3",
-    "thread-stream": "3.1.0"
+    "thread-stream": "3.1.0",
+    "tsx": "catalog:",
+    "wrangler": "^4.156.0"
   }
 }

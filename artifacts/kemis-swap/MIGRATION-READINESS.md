@@ -53,15 +53,15 @@ The source currently reads these deployment variable **names**; values must be e
 
 Keep the API's `/api` base path. The app rejects cross-origin state-changing requests, so the preferred cutover is a same-origin Cloudflare route for `/api/*` to the Node API, preserving the original host/protocol and session cookies. If the API is placed on a separate origin instead, redesign and test CORS, cookies, Clerk proxying, CSRF protection, and frontend API configuration before launch.
 
-### 5. Configure Cloudflare Pages and the domain
+### 5. Configure Cloudflare Workers and the domain
 
 - Build the existing web artifact with the intended root `BASE_PATH`; the current canonical origin is `https://wubtibeb.com`.
 - Configure SPA fallback for actual app routes, while keeping `/api/*`, `/robots.txt`, `/sitemap.xml`, `/ads.txt`, icons, manifests, and service-worker files mapped to their real resources.
-- Route API and any Clerk proxy paths to the Node service. Preserve same-origin behavior and avoid caching authenticated API responses.
+- The staging Worker can serve Vite static assets and a same-origin `/api/*` subset. Do not route unsupported API endpoints to production.
 - Set the apex/`www` canonical redirect, TLS, and Cloudflare proxy/routing from the owner-controlled dashboard. This source change does not attach domains or change DNS.
 - Test the service worker and installation after moving to the root path; its cache scope and asset URLs must not retain the old Replit artifact prefix.
 
-### Cloudflare staging preparation status — November 2, 2026
+### Cloudflare staging implementation status — November 2, 2026
 
 The website build has been verified locally with:
 
@@ -69,13 +69,15 @@ The website build has been verified locally with:
 PORT=25077 BASE_PATH=/ pnpm --filter @workspace/kemis-swap run build
 ```
 
-For a future Cloudflare Pages project, the monorepo root is the repository root, the build output is `artifacts/kemis-swap/dist/public`, and the app's API requests remain same-origin under `/api`. The build also needs `BASE_PATH=/` and a `PORT` value because the Vite config requires both variables.
+Source now includes a Cloudflare Workers entry point, Wrangler configuration, a Vite staging build script, and an isolated Hyperdrive/R2 binding contract. It implements health, community counts, listing discovery/detail/create, profile read/write, Clerk's same-origin frontend API proxy, and private R2 photo upload/read/delete endpoints. The API uses the existing `kemis_*` PostgreSQL tables and imports the shared Drizzle schema. Upload validation checks declared type, actual image signature, a streamed 2 MB cap, per-user hourly quota, ownership, blocked-user visibility, and metadata-write orphan cleanup.
 
-This is **preparation only**, not a deployed staging site. A Pages-only preview would not be a valid app test: no Cloudflare Pages Function currently routes `/api/*`, and the client would otherwise either fail those requests or require an unsafe cross-origin production API setting. Do not connect the preview to production API, PostgreSQL, Clerk credentials, or photo storage.
+This is a **partial source port, not a deployed or production-ready migration**. Swipes, exact reciprocal garment matching, match listing, private messaging, and proposal/acceptance/completion/cancellation are ported. Notifications are currently written for match/chat/exchange events, but the read/mark-read endpoints are not ported. Reports, blocks, moderation, listing edit/archive, and tutorial media are not ported. Do not point the frontend at the Worker until these flows are implemented and verified; the current UI still calls these endpoints. Replit Express production code remains unchanged.
 
-Before creating a staging deployment, the owner must select or provision an isolated staging API, PostgreSQL database, private photo-storage location, and Clerk development/staging application with the preview origin allowed. Then configure the Pages build settings above and route `/api/*` only to that staging API. Keep the preview on its `pages.dev` hostname until the complete sign-in, listing/upload, matching, messaging, and handoff test passes. Attach no custom domain and change no DNS as part of staging preparation.
+The Worker can be compiled locally using Wrangler without connecting to a database or Cloudflare account. A staging website build requires a real Clerk *staging* publishable key in `artifacts/kemis-swap/.env.cloudflare.local`; the Worker requires staging-only Clerk keys, an isolated PostgreSQL database connected through a Hyperdrive binding, and an R2 bucket. No Cloudflare project, bucket, Hyperdrive config, Clerk app, secret, deployment, custom-domain attachment, or DNS change was made here.
 
-No Cloudflare project, Pages Function, API host, database, storage bucket, Clerk application, secret, custom domain, or deployment was created in this step. This workspace does not have a connected Cloudflare dashboard integration, so the owner will need to perform the dashboard setup after the isolated backend prerequisites are chosen.
+The checked-in Wrangler config contains a dummy Hyperdrive ID and a local-only PostgreSQL URL. Before any deployment, the owner must create/configure isolated staging resources and replace the ID and bucket name. Use `pnpm --filter @workspace/api-server run db:staging:migrate` only with `WUB_TIBEB_STAGING_DATABASE_URL` pointing to the new staging database and `WUB_TIBEB_CONFIRM_STAGING=yes`. The scripts never fall back to `DATABASE_URL` and refuse a Replit-hosted target. Data export/import commands operate only on the separately named staging URL; they do not export the paused production database. For production preservation, obtain an owner-approved provider backup/export through its supported recovery path, then review it and import into a fresh staging database. Photo bytes need a separate owner-managed backup/transfer; no production storage was accessed.
+
+After completing route parity and tests, the owner can authenticate Wrangler, create the staging Hyperdrive and R2 resources, provide staging-only Clerk keys, run the schema migration, and use `pnpm --filter @workspace/api-server run cloudflare:build` followed by an owner-approved staging deploy. Keep the generated `workers.dev` hostname until sign-in, uploads, matching, chat, exchange, safety, and handoff pass. Do not attach the public domain or change DNS as part of this source-only step.
 
 ### 6. Reconnect Clerk and Google sign-in
 
@@ -106,7 +108,7 @@ These figures and limits can change. Verify them in the current Replit billing p
 
 - The live website response currently includes a hosting-injected `i.replit.com/script.js` badge script. It is not part of the app's React source, manifest, or artifact configuration, so CSS/source edits cannot reliably remove it.
 - Replit's current plan documentation says the badge cannot be removed on Starter; Core and Pro can manage it in Publishing settings. The active account plan is not exposed by the deployment metadata checked for this audit. Do not make a plan change without the owner.
-- A no-cost Cloudflare-native path is possible only after engineering work: keep the existing Cloudflare-managed domain and Clerk tenant, host the static Vite build on Pages, port the Express API to a Workers-compatible handler, route `/api/*` through the same origin, move PostgreSQL to an externally reachable PostgreSQL service, and move private photo objects to R2 (or equivalent). Verify quotas, connection behavior, and object-storage costs first; zero-cost always-on operation is not guaranteed.
+- A Cloudflare-native path now has a partial Worker implementation, but the API port is incomplete. Keep the existing Cloudflare-managed domain and Clerk tenant, complete route parity, connect an isolated PostgreSQL service through Hyperdrive, move private photo objects to R2, and verify quotas and connection behavior first; zero-cost always-on operation is not guaranteed.
 - Lower-risk path: keep the current Express API shape on a low-cost Node host, use a managed PostgreSQL service and private object storage, and let Cloudflare route the existing domain's `/api/*` path to the API while serving the web build. This avoids a full Express-to-Workers rewrite but may require a paid host/database/storage plan.
 - For either path, use staging first; take encrypted database and object backups; compare row counts and photo checksums; retain the original services and data until login, uploads, listings, exact-garment matching, messaging, and handoff flows pass; then cut over only with owner approval. Do not reset or delete the existing database or storage during migration.
 

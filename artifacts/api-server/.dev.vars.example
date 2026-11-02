@@ -1,0 +1,8 @@
+# Copy to .dev.vars for local Worker development. Use staging/test credentials only.
+# Do not place production Clerk keys or production database URLs here.
+CLERK_SECRET_KEY=replace_with_clerk_staging_secret
+CLERK_PUBLISHABLE_KEY=replace_with_clerk_staging_publishable_key
+CLERK_AUTHORIZED_PARTIES=http://localhost:8787
+
+# The local Hyperdrive connection is in wrangler.toml and is deliberately local-only.
+# .dev.vars must never be committed.
